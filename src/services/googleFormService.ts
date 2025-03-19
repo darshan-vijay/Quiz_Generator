@@ -350,4 +350,76 @@ export class GoogleFormsService {
     if (question.textQuestion?.paragraph) return 'paragraph';
     return 'short_answer';
   }
+  
+  /**
+   * Update an existing question in a form
+   */
+  public async updateQuestion(
+    token: string,
+    formId: string,
+    questionId: string,
+    questionData: QuizQuestion,
+    index: number
+  ): Promise<void> {
+    // Prepare the question item based on type
+    let questionItem: any = {
+      required: questionData.required,
+      grading: {
+        pointValue: questionData.points
+      }
+    };
+
+    // Add type-specific properties
+    if (questionData.type === 'multiple_choice') {
+      questionItem.choiceQuestion = {
+        type: questionData.isMultiSelect ? 'CHECKBOX' : 'RADIO',
+        options: questionData.options?.map(option => ({ value: option })) || []
+      };
+      if (questionData.options && questionData.options.length > 0) {
+        questionItem.grading.correctAnswers = {
+          answers: questionData.isMultiSelect
+            ? questionData.correctAnswers?.map(answer => ({ value: answer }))
+            : [{ value: questionData.correctAnswer }]
+        };
+      }
+    } else {
+      questionItem.textQuestion = {
+        paragraph: questionData.type === 'paragraph'
+      };
+      // Only add correctAnswers for short answer questions
+      if (questionData.type === 'short_answer' && questionData.correctAnswer) {
+        questionItem.grading.correctAnswers = {
+          answers: [{ value: questionData.correctAnswer }]
+        };
+      }
+    }
+
+    const response = await fetch(`${this.formsApiUrl}/${formId}:batchUpdate`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        requests: [{
+          updateItem: {
+            item: {
+              itemId: questionId,
+              title: questionData.title,
+              questionItem: {
+                question: questionItem
+              }
+            },
+            location: { index },
+            updateMask: 'title,questionItem.question'
+          }
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(`${response.status} - ${errorData}`);
+    }
+  }
 }
