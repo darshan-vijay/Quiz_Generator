@@ -1,0 +1,39 @@
+name: Test and build
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 23
+          cache: "npm"
+      - name: install dependencies
+        run: |
+          npm ci
+      - name: migrate test database
+        shell: bash
+        run: |
+          psql --host localhost --username postgres < databases/create_databases.sql
+          DATABASE_URL="postgresql://localhost:5432/capstone_starter_test?user=capstone_starter&password=capstone_starter" npm run migrate
+      - name: test and build
+        run: |
+          npm run test
+          npm run build
+          docker build -t capstone-starter .

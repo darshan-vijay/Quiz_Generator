@@ -1,13 +1,12 @@
 {
   "name": "capstone-starter",
   "version": "1.0.0",
-  "main": "buils/app.js",
+  "main": "build/app.js",
   "scripts": {
     "start": "node build/app.js",
     "collect": "node build/collect.js",
     "analyze": "node build/analyze.js",
     "migrate": "knex migrate:latest --knexfile databases/knexfile.js",
-
     "build": "tsc && cp -r src/views src/public build/",
     "clean": "rm -rf ./build",
     "watch": "nodemon src/app.ts",
