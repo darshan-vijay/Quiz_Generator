@@ -422,4 +422,22 @@ export class GoogleFormsService {
       throw new Error(`${response.status} - ${errorData}`);
     }
   }
+
+  /**
+   * Add a new question to a form
+   */
+  public async addQuestion(
+    token: string,
+    formId: string,
+    questionData: QuizQuestion,
+    onLog: (message: string) => void
+  ): Promise<void> {
+    await this.updateFormWithContent(
+      token,
+      formId,
+      { quizTitle: '', description: '', questions: [questionData] },
+      new Set([0]),
+      onLog
+    );
+  }
 }
