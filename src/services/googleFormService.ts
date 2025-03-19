@@ -20,6 +20,43 @@ export interface FormCreationResponse {
   formUrl: string;
 }
 
+export interface ExistingQuestion {
+    id: string;
+    title: string;
+    type: 'multiple_choice' | 'paragraph' | 'short_answer';
+    required: boolean;
+    points: number;
+    options?: string[];
+    correctAnswer?: string;
+    correctAnswers?: string[];
+    isMultiSelect?: boolean;
+  }
+
+interface GoogleFormResponse {
+  items: Array<{
+    questionItem: {
+      question: {
+        questionId: string;
+        required: boolean;
+        grading?: {
+          pointValue: number;
+          correctAnswers?: {
+            answers: Array<{ value: string }>;
+          };
+        };
+        choiceQuestion?: {
+          type: string;
+          options: Array<{ value: string }>;
+        };
+        textQuestion?: {
+          paragraph: boolean;
+        };
+      };
+    };
+    title: string;
+  }>;
+}
+
 /**
  * Create a new Google Form with the provided quiz data
  */
@@ -275,5 +312,42 @@ export class GoogleFormsService {
         },
       },
     };
+  }
+
+  /**
+   * Fetch existing questions from a form
+   */
+  public async fetchQuestions(token: string, formId: string): Promise<ExistingQuestion[]> {
+    const response = await fetch(`${this.formsApiUrl}/${formId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch form: ${response.status}`);
+    }
+
+    const data = await response.json() as GoogleFormResponse;
+    return data.items
+      ?.filter((item: any) => item.questionItem)
+      .map((item: any) => ({
+        id: item.questionItem.question.questionId,
+        title: item.title,
+        type: this.getQuestionType(item.questionItem.question),
+        required: item.questionItem.question.required,
+        points: item.questionItem.question.grading?.pointValue || 0,
+        options: item.questionItem.question.choiceQuestion?.options?.map((opt: any) => opt.value) || [],
+        correctAnswer: item.questionItem.question.grading?.correctAnswers?.answers?.[0]?.value,
+        correctAnswers: item.questionItem.question.grading?.correctAnswers?.answers?.map((ans: any) => ans.value) || [],
+        isMultiSelect: item.questionItem.question.choiceQuestion?.type === 'CHECKBOX'
+      })) || [];
+  }
+
+  private getQuestionType(question: any): 'multiple_choice' | 'paragraph' | 'short_answer' {
+    if (question.choiceQuestion) return 'multiple_choice';
+    if (question.textQuestion?.paragraph) return 'paragraph';
+    return 'short_answer';
   }
 }
