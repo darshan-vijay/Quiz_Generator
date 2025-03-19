@@ -1,4 +1,16 @@
-# Capstone Starter
+# Foundations of Software Team 1, Quiz Making API
+Mohammed Raihan Ullah, Nikhil Bailey, Vinay Rajesh, Darshan Vijayaraghavan, Onkar Apte, Jyotirmoy Karmakar.
+
+
+## About this Project
+Our project scrapes and collects documents from the web and uses them to generate quizzes upon request.
+
+## Architecture 
+![Architecture Diagram](src/public/images/architecture.jpg)
+
+
+
+# Built on: Capstone Starter
 
 A capstone starter application.
 
