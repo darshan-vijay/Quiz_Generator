@@ -5,14 +5,8 @@ Mohammed Raihan Ullah, Nikhil Bailey, Vinay Rajesh, Darshan Vijayaraghavan, Onka
 ## About this Project
 Our project scrapes and collects documents from the web to generate quizzes on demand. The application leverages the capabilities of LLMs to create quiz questions based on the scraped data and user prompts. It then uses the Google Forms API to publish the generated quizzes on Google Forms.
 
-## Architecture 
+## Architecture Overview
 ![Architecture Diagram](src/public/images/architecture.jpg)
-
-
-
-# Built on: Capstone Starter
-
-A capstone starter application.
 
 ## Technology stack
 
@@ -37,6 +31,13 @@ The central component that handles user interactions. It allows users to request
 
 All components communicate through the SQL database, where raw data, quiz requests, and generated quizzes are stored.
 
+## Deployment Method
+
+The application is currently deployed on Cloud Run using a container image stored in Google Artifact Registry. The deployment process begins with authentication via the Google Cloud CLI, followed by building and pushing the Docker image of the main application to the designated Artifact Registry repository. This image is then used to deploy the service on Cloud Run. All related commands and steps are documented in the `Deployment Commands` file within the project repository.
+
+## Important design choices
+
+ The current deployment process uses Google Cloud Run to host a Dockerized application, with the image built locally, pushed to Google Artifact Registry, and then deployed as a publicly accessible service. However, major architectural changes are planned: the deployment will soon transition to Google Kubernetes Engine (GKE), where individual containers for the collector, analyzer, and the main web application will be orchestrated. This new deployment pipeline will be automated using GitHub Actions, enabling continuous integration and delivery for the entire system.
 
 ## Local development
 
