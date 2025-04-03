@@ -45,7 +45,7 @@ Regarding our coordination process, we mainly kept ourselves updated with weekly
 
 ## Work Distribution Method
 
-We divided tasks based on each team member’s strengths and interests. Raihan focused on the app flow, refining the idea, and integrating the Google Forms API. Myself and Darshan handled cloud architecture, CI/CD, and deployment to GCP. Nikhil worked on authentication and frontend development, while Onkar and Vinay were responsible for scraping websites and storing the data. This clear division of work allowed us to work efficiently in parallel.
+We divided tasks based on each team member’s strengths and interests. Raihan focused on the app flow, refining the idea, and integrating the Google Forms API. Myself and Darshan handled cloud architecture, CI/CD, and deployment to GCP. Nikhil worked on authentication and frontend development, while Onkar and Vinay were responsible for scraping websites, parsing, and storing the data. This clear division of work allowed us to work efficiently in parallel.
 
 ## Local development
 
