@@ -8,6 +8,11 @@ Our project scrapes and collects documents from the web to generate quizzes on d
 ## Architecture Overview
 ![Architecture Diagram](src/public/images/architecture.jpg)
 
+## Cloud Architecture
+
+![Cloud Architecture Diagram](src/public/images/cloud-architecture.jpg)
+
+
 ## Technology stack
 
 This codebase is written [Typescript](https://www.typescriptlang.org/) and uses [Express](https://expressjs.com/)
