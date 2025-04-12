@@ -9,7 +9,7 @@ Our project scrapes and collects documents from the web to generate quizzes on d
 ![Architecture Diagram](src/public/images/architecture.jpg)
 
 ## Cloud Architecture
-<img src="src/public/images/cloud-architecture.png" width="100">
+<img src="src/public/images/cloud-architecture.png" width="250">
 
 
 ## Technology stack
