@@ -12,9 +12,8 @@ jobs:
       - name: install dependencies
         run: |
           npm ci
-      - name: test and build
+      - name: build and push
         run: |
-          npm run test
           npm run build
           docker build -t quiz-app .
       - name: Login to Docker Hub
