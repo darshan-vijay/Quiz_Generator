@@ -5,6 +5,7 @@ node_modules/
 build/
 dist/
 out/
+/build/
 
 # TypeScript
 *.tsbuildinfo
@@ -24,3 +25,7 @@ temp/
 
 # Debug
 .debug/
+
+# Terraform state files
+terraform/.terraform
+terraform/.terraform.lock.hcl

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+export PROJECT_ID=quizproject-454218
+export APP_NAME=quiz-app
+
+# Authenticate and configure Google Cloud
+gcloud auth login
+gcloud config set project ${PROJECT_ID}
+gcloud auth application-default login
+gcloud services enable \
+    artifactregistry.googleapis.com
+
+# Create an Artifact Registry for Docker images
+gcloud artifacts repositories create team-typo \
+    --location=us-central1 \
+    --repository-format=docker
+
+# Authenticate Docker with Google Artifact Registry
+gcloud auth configure-docker us-central1-docker.pkg.dev
+
+# Build the Docker image
+docker build -t us-central1-docker.pkg.dev/${PROJECT_ID}/team-typo/${APP_NAME}:1 \
+    --platform linux/amd64 .
+
+# Push the Docker image to Artifact Registry
+docker push us-central1-docker.pkg.dev/${PROJECT_ID}/team-typo/${APP_NAME}:1
+
+# Deploy to Cloud Run
+gcloud run deploy ${APP_NAME} \
+    --image us-central1-docker.pkg.dev/${PROJECT_ID}/team-typo/${APP_NAME}:1 \
+    --region us-central1 \
+    --allow-unauthenticated \
+    --platform managed
