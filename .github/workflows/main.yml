@@ -35,3 +35,18 @@ jobs:
           context: .
           push: true
           tags: davi1493/quiz-app:${{ env.VERSION }}
+      - name: Clone GitLab repo
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git clone https://${{ secrets.GITLAB_USERNAME }}:${{ secrets.GITLAB_PAT }}@gitlab.com/cu-group/quiz-proj.git gitlab-repo
+      - name: Update image tag in deployment
+        run: |
+          cd gitlab-repo/manifests
+          sed -i "s|image: docker.io/davi1493/quiz-app:.*|image: docker.io/davi1493/quiz-app:${{ env.VERSION }}|" server-deployment.yaml
+      - name: Commit and push updated image tag
+        run: |
+          cd gitlab-repo
+          git add manifests/server-deployment.yaml
+          git commit -m "chore: update image tag to ${{ env.VERSION }}"
+          git push origin main
