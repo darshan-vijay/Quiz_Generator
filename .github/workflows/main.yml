@@ -36,10 +36,15 @@ jobs:
           push: true
           tags: davi1493/quiz-app:${{ env.VERSION }}
       - name: Clone GitLab repo
+        env:
+          GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
+          GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git clone https://${{ secrets.GITLAB_USERNAME }}:${{ secrets.GITLAB_PAT }}@gitlab.com/cu-group/quiz-proj.git gitlab-repo
+          GIT_REPO=https://${GITLAB_USERNAME}:${GITLAB_PAT}@gitlab.com/cu-group/quiz-proj.git
+          git clone "$GIT_REPO" gitlab-repo
+
       - name: Update image tag in deployment
         run: |
           cd gitlab-repo/manifests
