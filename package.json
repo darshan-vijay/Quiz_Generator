@@ -7,23 +7,25 @@
     "collect": "node build/collect.js",
     "analyze": "node build/analyze.js",
     "migrate": "knex migrate:latest --knexfile databases/knexfile.js",
-    "build": "tsc && cp -r src/views src/public build/",
+    "build": "tsc",
     "clean": "rm -rf ./build",
     "watch": "nodemon src/app.ts",
-    "test": "tsc --noEmit && vitest run"
+    "test": "tsc --noEmit && vitest run",
+    "dev:server": "nodemon --watch 'src/webSupport/**/*.ts' --exec 'ts-node --transpile-only' src/webSupport/appServer.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.21.2",
-    "express-handlebars": "^8.0.1",
-    "knex": "^3.1.0",
-    "pg": "^8.13.3"
+    "@react-oauth/google": "^0.12.1",
+    "@types/dotenv": "^6.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "@types/pg": "^8.11.11",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",

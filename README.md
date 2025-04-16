@@ -21,7 +21,7 @@ It stores data in [PostgreSQL](https://www.postgresql.org/), and a [GitHub Actio
 runs tests.
 
 ## Architecture
- 
+
 The application consists of three main components communicating through a PostgreSQL database:  
 
 #### 1. Collector (Data Collector)  
@@ -107,3 +107,32 @@ npx knex migrate:make "[Description of change]" --knexfile databases/knexfile.js
     docker run --env-file .env.docker --entrypoint ./analyze.sh capstone-starter
     docker run -p 8787:8787 --env-file .env.docker capstone-starter
     ```   
+
+## Running the Application
+
+### API Server
+To run the backend API server:
+```bash
+# Clean and build the project
+npm run clean && npm run build
+
+# Start the API server
+npm run start
+```
+The API server will run on http://localhost:8080
+
+### React Frontend
+To run the React frontend development server:
+```bash
+# Navigate to the React app directory
+cd src/views/react
+
+# Install dependencies (first time only)
+npm install
+
+# Start the development server
+npm start
+```
+The React app will be available at http://localhost:3000 and will automatically proxy API requests to the backend server.
+
+# Built on: Capstone Starter

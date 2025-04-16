@@ -1,5 +1,20 @@
-import { appServer } from "./webSupport/appServer";
-import { configureApp } from "./appConfig";
-import { environment } from "./environment";
+import type { Express, Router } from 'express';
+import { googleFormApiRoutes } from './services/server/apiRoutes';
+import cors from 'cors';
+import * as express from 'express';
 
-appServer.start(8080, configureApp(environment.fromEnv()));
+export const configureGoogleFormApi = (app: Express) => {
+  // Add middleware for parsing JSON request bodies
+  app.use(express.json());
+  
+  // Add CORS middleware to allow cross-origin requests from React app
+  app.use(cors({
+    origin: ['http://localhost:3000', 'http://localhost:8080'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
+  // Register API routes
+  app.use('/api/google-forms', googleFormApiRoutes);
+  
+  console.log('Google Form API routes registered');
+};
