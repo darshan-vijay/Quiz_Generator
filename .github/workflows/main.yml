@@ -1,9 +1,6 @@
 name: Build, Push, and Update GitLab
 
-on:
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
   build-backend:
