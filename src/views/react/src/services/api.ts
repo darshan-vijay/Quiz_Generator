@@ -1,8 +1,8 @@
-import { UserInfo } from './googleFormAuthService';
-import { QuizData, QuizQuestion, ExistingQuestion, FormCreationResponse } from './googleFormService';
+import { UserInfo } from './googleFormAuthServiceModels';
+import { QuizData, QuizQuestion, ExistingQuestion, FormCreationResponse } from './googleFormServiceModels';
 
-// Use the proxy set in package.json (now pointing to port 3001)
-const API_BASE_URL = '/api/google-forms';
+// Use environment variable for API base URL
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export class ApiClient {
   /**

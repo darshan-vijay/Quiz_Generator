@@ -1,22 +1,36 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import { configureGoogleFormApi } from './apiConfig';
+import express, { Express } from 'express';
+import { configureGoogleFormApi } from '../services/server/apiConfig';
+import cors from 'cors';
 
-// Load environment variables
-dotenv.config();
+export class AppServer {
+  private app: Express;
 
-// Create Express application
-const app = express();
-const PORT = process.env.PORT || 3001;
+  constructor() {
+    this.app = express();
+    // Configure CORS
+    this.app.use(cors({
+      origin: 'http://localhost:3000', // React app's URL
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization']
+    }));
+  }
 
-// Configure API routes
-configureGoogleFormApi(app);
+  public configureGoogleFormsApi(): void {
+    configureGoogleFormApi(this.app);
+  }
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Google Forms API available at http://localhost:${PORT}/api/google-forms`);
-});
+  public async start(port: number): Promise<void> {
+    return new Promise((resolve) => {
+      this.app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+        console.log(`Google Forms API available at http://localhost:${port}/api/google-forms`);
+        resolve();
+      });
+    });
+  }
 
-// Export the app for testing purposes
-export default app;
+  // Get the Express app instance (useful for testing)
+  public getApp(): Express {
+    return this.app;
+  }
+}

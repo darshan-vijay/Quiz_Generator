@@ -1,20 +1,17 @@
-import type { Express, Router } from 'express';
-import { googleFormApiRoutes } from './services/server/apiRoutes';
-import cors from 'cors';
-import * as express from 'express';
+import dotenv from 'dotenv';
+import { AppServer } from "./webSupport/appServer";
 
-export const configureGoogleFormApi = (app: Express) => {
-  // Add middleware for parsing JSON request bodies
-  app.use(express.json());
-  
-  // Add CORS middleware to allow cross-origin requests from React app
-  app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:8080'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-  }));
-  // Register API routes
-  app.use('/api/google-forms', googleFormApiRoutes);
-  
-  console.log('Google Form API routes registered');
-};
+// Load environment variables
+dotenv.config();
+
+async function startGoogleFormsApi() {
+  const googleFormsServer = new AppServer();
+  googleFormsServer.configureGoogleFormsApi();
+  await googleFormsServer.start(3001);
+}
+
+// Start the Google Forms API server
+startGoogleFormsApi().catch(error => {
+  console.error('Error starting Google Forms API server:', error);
+  process.exit(1);
+});

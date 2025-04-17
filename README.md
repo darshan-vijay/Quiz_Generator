@@ -49,7 +49,7 @@ Regarding our coordination process, we mainly kept ourselves updated with weekly
 
 ## Work Distribution Method
 
-We divided tasks based on each team member’s strengths and interests. Raihan focused on the app flow, refining the idea, and integrating the Google Forms API. Myself and Darshan handled cloud architecture, CI/CD, and deployment to GCP. Nikhil worked on authentication and frontend development, while Onkar and Vinay were responsible for scraping websites, parsing, and storing the data. This clear division of work allowed us to work efficiently in parallel.
+We divided tasks based on each team member's strengths and interests. Raihan focused on the app flow, refining the idea, and integrating the Google Forms API. Myself and Darshan handled cloud architecture, CI/CD, and deployment to GCP. Nikhil worked on authentication and frontend development, while Onkar and Vinay were responsible for scraping websites, parsing, and storing the data. This clear division of work allowed us to work efficiently in parallel.
 
 ## Local development
 
@@ -136,3 +136,69 @@ npm start
 The React app will be available at http://localhost:3000 and will automatically proxy API requests to the backend server.
 
 # Built on: Capstone Starter
+
+## Quick Start Guide
+
+### Installation
+To install all required dependencies for both backend and frontend:
+```bash
+# Install all dependencies (both backend and frontend)
+npm run install:all
+```
+
+### Running the Application
+
+#### Development Mode (Recommended)
+To run both the backend server and frontend in development mode with hot reloading:
+```bash
+# Start both the backend server and frontend concurrently
+npm run dev
+```
+This will start:
+- Backend server on http://localhost:8080
+- Frontend development server on http://localhost:3000
+
+#### Running Separately
+
+##### Backend Server
+To run only the backend API server:
+```bash
+# Start the backend server
+npm run dev:server
+```
+The API server will run on http://localhost:8080
+
+##### Frontend Development
+To run only the React frontend development server:
+```bash
+# Start the frontend development server
+npm run dev:frontend
+```
+The React app will be available at http://localhost:3000 and will automatically proxy API requests to the backend server.
+
+### Building and Running in Production
+
+#### Step 1: Build the Project
+```bash
+# Clean the build directory
+npm run clean
+
+# Build the TypeScript backend
+npm run build
+
+# Build the React frontend
+cd src/views/react
+npm run build
+cd ../../..
+```
+
+#### Step 2: Start the Production Server
+```bash
+# Start the production server
+npm start
+```
+The production server will:
+- Serve the backend API on http://localhost:8080
+- Serve the built React frontend from the same server
+
+Note: Make sure all environment variables are properly set in your production environment.

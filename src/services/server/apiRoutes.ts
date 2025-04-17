@@ -1,13 +1,19 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router, Request, Response, NextFunction } from 'express';
 import { GoogleAuthService } from './googleFormAuthService';
 import { GoogleFormsService, QuizData } from './googleFormService';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // Create Express router
 const router = Router();
 
 // Initialize services
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 
-  '456285933079-lv2hpg5abndoltccheqfom2l1qqftek0.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+if (!GOOGLE_CLIENT_ID) {
+  throw new Error('GOOGLE_CLIENT_ID environment variable is not set');
+}
 
 const authService = new GoogleAuthService({
   clientId: GOOGLE_CLIENT_ID,
@@ -18,10 +24,11 @@ const authService = new GoogleAuthService({
 const formsService = new GoogleFormsService();
 
 // Middleware to validate token
-const validateToken = (req: Request, res: Response, next: () => void) => {
+const validateToken = (req: Request, res: Response, next: NextFunction): void => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
-    return res.status(401).json({ error: 'No authorization token provided' });
+    res.status(401).json({ error: 'No authorization token provided' });
+    return;
   }
   // Attach token to request for use in route handlers
   (req as any).token = token;
@@ -31,12 +38,13 @@ const validateToken = (req: Request, res: Response, next: () => void) => {
 // API endpoints
 
 // Get user info
-router.get('/user-info', validateToken, async (req: Request, res: Response) => {
+router.get('/user-info', validateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
     const userInfo = await authService.fetchUserInfo(token);
     if (!userInfo) {
-      return res.status(401).json({ error: 'Failed to fetch user information' });
+      res.status(401).json({ error: 'Failed to fetch user information' });
+      return;
     }
     res.json(userInfo);
   } catch (error: any) {
@@ -45,13 +53,14 @@ router.get('/user-info', validateToken, async (req: Request, res: Response) => {
 });
 
 // Create a form
-router.post('/forms', validateToken, async (req: Request, res: Response) => {
+router.post('/forms', validateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
     const { quizData, selectedQuestions } = req.body;
     
     if (!quizData || !selectedQuestions) {
-      return res.status(400).json({ error: 'Missing required quiz data or selected questions' });
+      res.status(400).json({ error: 'Missing required quiz data or selected questions' });
+      return;
     }
 
     // Convert selectedQuestions array to Set
@@ -81,13 +90,14 @@ router.post('/forms', validateToken, async (req: Request, res: Response) => {
 });
 
 // Fetch existing questions
-router.get('/forms/:formId/questions', validateToken, async (req: Request, res: Response) => {
+router.get('/forms/:formId/questions', validateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
     const { formId } = req.params;
 
     if (!formId) {
-      return res.status(400).json({ error: 'Missing form ID' });
+      res.status(400).json({ error: 'Missing form ID' });
+      return;
     }
 
     const questions = await formsService.fetchQuestions(token, formId);
@@ -98,14 +108,15 @@ router.get('/forms/:formId/questions', validateToken, async (req: Request, res: 
 });
 
 // Update a question
-router.put('/forms/:formId/questions/:questionId', validateToken, async (req: Request, res: Response) => {
+router.put('/forms/:formId/questions/:questionId', validateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
     const { formId, questionId } = req.params;
     const { questionData, index } = req.body;
 
     if (!formId || !questionId || !questionData || index === undefined) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+      res.status(400).json({ error: 'Missing required parameters' });
+      return;
     }
 
     await formsService.updateQuestion(
@@ -123,14 +134,15 @@ router.put('/forms/:formId/questions/:questionId', validateToken, async (req: Re
 });
 
 // Add a new question
-router.post('/forms/:formId/questions', validateToken, async (req: Request, res: Response) => {
+router.post('/forms/:formId/questions', validateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
     const { formId } = req.params;
     const { questionData } = req.body;
 
     if (!formId || !questionData) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+      res.status(400).json({ error: 'Missing required parameters' });
+      return;
     }
 
     // Array to capture logs

@@ -2,7 +2,6 @@
   "name": "quiz-maker-frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3001",
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
     "@testing-library/dom": "^10.4.0",

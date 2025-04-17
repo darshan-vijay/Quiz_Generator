@@ -1,51 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleOAuthProvider, GoogleLogin, CredentialResponse, useGoogleLogin } from '@react-oauth/google';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import './App.css';
 import quizData from './quizData.json';
-import { UserInfo } from './services/googleFormAuthService';
-import { QuizData } from './services/googleFormService';
+import { UserInfo } from './services/googleFormAuthServiceModels';
+import { QuizData } from './services/googleFormServiceModels';
 import { ApiClient } from './services/api';
 // import FormModifier from './components/FormModifier';
 // import './components/FormModifier.css';
 
-// Replace with your actual Google OAuth client ID
-const GOOGLE_CLIENT_ID = '456285933079-lv2hpg5abndoltccheqeom2l1qqftek0.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+if (!GOOGLE_CLIENT_ID) {
+  throw new Error('REACT_APP_GOOGLE_CLIENT_ID environment variable is not set');
+}
 
 // Login component that uses the useGoogleLogin hook
 interface LoginProps {
   onLoginSuccess: (token: string) => void;
   onUserInfo: (info: UserInfo) => void;
   onError: (error: string) => void;
-  addLog: (message: string) => void;
 }
 
-function LoginButton({ onLoginSuccess, onUserInfo, onError, addLog }: LoginProps) {
+function LoginButton({ onLoginSuccess, onUserInfo, onError }: LoginProps) {
   const [showTestingHelp, setShowTestingHelp] = useState(false);
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      addLog('Access token login success');
-      console.log('Token response:', tokenResponse);
-      
       const token = tokenResponse.access_token;
-      addLog(`Received access token: ${token.substring(0, 10)}...`);
       onLoginSuccess(token);
       
       try {
-        // Get user info using API client
         const userInfo = await ApiClient.getUserInfo(token);
         if (userInfo) {
           onUserInfo(userInfo);
         }
       } catch (error) {
-        addLog(`Error fetching user info: ${error}`);
         onError(`Failed to fetch user info: ${error}`);
       }
     },
     onError: (error: any) => {
-      addLog(`Access token login error: ${JSON.stringify(error)}`);
-      
-      // Simple error handling
       const isAccessDenied = error.error === 'access_denied' || 
         (error.error_description && error.error_description.includes('access_denied'));
       
@@ -61,7 +53,13 @@ function LoginButton({ onLoginSuccess, onUserInfo, onError, addLog }: LoginProps
   return (
     <div className="login-buttons">
       <button onClick={() => login()} className="google-login-button">
-        Sign in with Google (Access Token)
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
+          <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.96H.957C.347 6.175 0 7.55 0 9c0 1.45.348 2.825.957 4.04l3.007-2.328z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.96L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+        </svg>
+        Sign in with Google
       </button>
       <div className="login-note">
         <p>This button requests an access token with Forms API scope</p>
@@ -89,23 +87,13 @@ function App() {
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [createdFormUrl, setCreatedFormUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [logs, setLogs] = useState<string[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const [formId, setFormId] = useState<string | null>(null);
   const [selectedQuestions, setSelectedQuestions] = useState<Set<number>>(new Set());
   const [createdFormId, setCreatedFormId] = useState<string | null>(null);
-  const [apiTestResult, setApiTestResult] = useState<string | null>(null);
-
-  // Function to add logs
-  const addLog = (message: string) => {
-    console.log(message);
-    setLogs(prevLogs => [...prevLogs, `${new Date().toISOString()}: ${message}`]);
-  };
 
   // Initialize all questions as selected
   useEffect(() => {
     setSelectedQuestions(new Set(quizData.questions.map((_, index) => index)));
-    addLog('App initialized');
   }, []);
 
   // Function to toggle question selection
@@ -139,59 +127,32 @@ function App() {
   };
 
   const handleLoginError = (errorMsg: string) => {
-    addLog(`Login error: ${errorMsg}`);
     setError(errorMsg);
   };
 
   const handleCreateQuiz = async () => {
     if (!accessToken) {
-      const errorMsg = 'Please sign in with Google first';
-      addLog(errorMsg);
-      setError(errorMsg);
+      setError('Please sign in with Google first');
       return;
     }
 
-    addLog('Starting form creation process');
     setIsCreating(true);
     setError(null);
     
     try {
-      // Create form using the API client
       const result = await ApiClient.createForm(
         accessToken,
         quizData as QuizData,
-        selectedQuestions,
-        addLog
+        selectedQuestions
       );
       
-      setFormId(result.formId);
       setCreatedFormId(result.formId);
       setCreatedFormUrl(result.formUrl);
-      addLog(`Form created successfully. URL: ${result.formUrl}`);
       
     } catch (err: any) {
-      const errorMsg = `Failed to complete form creation: ${err.message}`;
-      addLog(`Error: ${errorMsg}`);
-      console.error('Error creating form:', err);
-      setError(errorMsg);
+      setError(`Failed to complete form creation: ${err.message}`);
     } finally {
       setIsCreating(false);
-    }
-  };
-
-  const testApiConnection = async () => {
-    try {
-      addLog('Testing API connection to port 3001...');
-      
-      // Use the ApiClient to test the connection
-      const data = await ApiClient.testConnection();
-      
-      addLog(`API Test Result: ${JSON.stringify(data)}`);
-      setApiTestResult(`Connected successfully! Server message: ${data.message}`);
-    } catch (error) {
-      const errorMsg = `API connection test failed: ${error}`;
-      addLog(errorMsg);
-      setApiTestResult(errorMsg);
     }
   };
 
@@ -203,22 +164,7 @@ function App() {
       </header>
       
       <main className="App-main">
-        <div className="api-test-section">
-          <h2>API Connection Test</h2>
-          <button 
-            onClick={testApiConnection}
-            className="test-api-button"
-          >
-            Test API Connection (Port 3001)
-          </button>
-          {apiTestResult && (
-            <div className={apiTestResult.includes('failed') ? 'error-message' : 'success-message'}>
-              {apiTestResult}
-            </div>
-          )}
-        </div>
-        
-        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID as string}>
           <div className="auth-section">
             <h2>Step 1: Sign in with Google</h2>
             {!accessToken ? (
@@ -226,7 +172,6 @@ function App() {
                 onLoginSuccess={handleAccessTokenSuccess}
                 onUserInfo={handleUserInfo}
                 onError={handleLoginError}
-                addLog={addLog}
               />
             ) : (
               <div className="success-message">
@@ -327,23 +272,6 @@ function App() {
               onLog={addLog}
             />
           </div> */}
-
-          <div className="logs-section">
-            <h2>Debug Logs</h2>
-            <button 
-              onClick={() => setLogs([])}
-              className="clear-logs-button"
-            >
-              Clear Logs
-            </button>
-            <div className="logs-container">
-              {logs.map((log, index) => (
-                <div key={index} className="log-entry">
-                  {log}
-                </div>
-              ))}
-            </div>
-          </div>
         </GoogleOAuthProvider>
       </main>
       

@@ -8,10 +8,15 @@
     "analyze": "node build/analyze.js",
     "migrate": "knex migrate:latest --knexfile databases/knexfile.js",
     "build": "tsc",
+    "build:frontend": "cd src/views/react && npm run build",
+    "build:all": "npm run clean && npm run build && npm run build:frontend",
     "clean": "rm -rf ./build",
     "watch": "nodemon src/app.ts",
     "test": "tsc --noEmit && vitest run",
-    "dev:server": "nodemon --watch 'src/webSupport/**/*.ts' --exec 'ts-node --transpile-only' src/webSupport/appServer.ts"
+    "dev:server": "nodemon --watch 'src/**/*.ts' --exec 'ts-node --transpile-only' src/app.ts",
+    "dev:frontend": "cd src/views/react && npm start",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:frontend\"",
+    "install:all": "npm install && cd src/views/react && npm install"
   },
   "author": "",
   "license": "ISC",
@@ -19,13 +24,23 @@
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
     "@types/dotenv": "^6.1.1",
+    "@types/pg": "^8.11.13",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pg": "^8.14.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.9.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/node": "^16.18.126",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "concurrently": "^8.2.2",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
