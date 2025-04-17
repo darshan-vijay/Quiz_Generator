@@ -1,0 +1,70 @@
+{
+  "quizTitle": "Sample Knowledge Quiz",
+  "description": "This is a sample quiz to test your knowledge on various topics.",
+  "questions": [
+    {
+      "type": "multiple_choice",
+      "title": "What is the capital of France?",
+      "required": true,
+      "options": ["Paris", "London", "Berlin", "Madrid"],
+      "correctAnswer": "Paris",
+      "points": 1
+    },
+    {
+      "type": "multiple_choice",
+      "title": "Which planet is known as the Red Planet?",
+      "required": true,
+      "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+      "correctAnswer": "Mars",
+      "points": 1
+    },
+    {
+      "type": "multiple_choice",
+      "title": "Which of these are programming languages? (Select all that apply)",
+      "required": true,
+      "options": ["Python", "Cobra", "Java", "Latte", "Ruby", "Diamond"],
+      "correctAnswers": ["Python", "Java", "Ruby"],
+      "isMultiSelect": true,
+      "points": 2
+    },
+    {
+      "type": "paragraph",
+      "title": "Explain the process of photosynthesis in your own words.",
+      "required": true,
+      "points": 3
+    },
+    {
+      "type": "short_answer",
+      "title": "What is the chemical symbol for water?",
+      "required": true,
+      "correctAnswer": "H2O",
+      "points": 1
+    },
+    {
+      "type": "multiple_choice",
+      "title": "Which of these are primary colors? (Select all that apply)",
+      "required": true,
+      "options": ["Red", "Green", "Blue", "Yellow", "Purple", "Orange"],
+      "correctAnswers": ["Red", "Blue", "Yellow"],
+      "isMultiSelect": true,
+      "points": 2
+    },
+    {
+      "type": "multiple_choice",
+      "title": "Who wrote 'Romeo and Juliet'?",
+      "required": true,
+      "options": ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+      "correctAnswer": "William Shakespeare",
+      "points": 1
+    },
+    {
+      "type": "multiple_choice",
+      "title": "Which of these countries are in South America? (Select all that apply)",
+      "required": true,
+      "options": ["Brazil", "Spain", "Peru", "Mexico", "Argentina", "Portugal"],
+      "correctAnswers": ["Brazil", "Peru", "Argentina"],
+      "isMultiSelect": true,
+      "points": 2
+    }
+  ]
+} 

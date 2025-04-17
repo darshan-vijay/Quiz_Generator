@@ -1,25 +1,24 @@
 {
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/testSupport/**/*"
-  ],
   "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["ESNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
+    "target": "es6",
     "module": "commonjs",
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noImplicitAny": true,
-    "outDir": "./build"
-  }
+    "outDir": "./build",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/views/react/**/*",
+    "src/databaseSupport/**/*",
+    "src/handleHealth.ts",
+    "src/handleIndex.ts",
+    "src/webSupport/templateEngine.ts",
+    "src/webSupport/staticFileHandler.ts",
+    "**/*.test.ts",
+    "src/testSupport/**/*"
+  ]
 }

@@ -1,37 +1,36 @@
-import express, {Express} from "express";
-import {templateEngine} from "./templateEngine";
-import {AddressInfo} from "node:net";
-import * as http from "node:http";
+import express, { Express } from 'express';
+import { configureGoogleFormApi } from '../services/server/apiConfig';
+import cors from 'cors';
 
-export type AppServer = {
-    address: string;
-    stop: () => void;
-};
+export class AppServer {
+  private app: Express;
 
-const start = async (port: number, configure: (app: Express) => void): Promise<AppServer> => {
-    const app = express();
-    configure(app);
-    templateEngine.register(app);
+  constructor() {
+    this.app = express();
+    // Configure CORS
+    this.app.use(cors({
+      origin: 'http://localhost:3000', // React app's URL
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization']
+    }));
+  }
 
-    const server = await new Promise<http.Server>((resolve, reject) => {
-        const cancelTimer = setTimeout(() => reject("Server failed to start in 5 seconds"), 5_000);
-        const httpServer = app.listen(port, () => {
-            if (port !== 0) {
-                console.log(`App listening on http://localhost:${port}`);
-            }
-            clearTimeout(cancelTimer);
-            resolve(httpServer);
-        });
+  public configureGoogleFormsApi(): void {
+    configureGoogleFormApi(this.app);
+  }
 
+  public async start(port: number): Promise<void> {
+    return new Promise((resolve) => {
+      this.app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+        console.log(`Google Forms API available at http://localhost:${port}/api/google-forms`);
+        resolve();
+      });
     });
+  }
 
-    const address = server.address() as AddressInfo;
-    return {
-        address: `http://localhost:${address.port}`,
-        stop: () => server.close(),
-    };
-};
-
-export const appServer = {
-    start,
-};
+  // Get the Express app instance (useful for testing)
+  public getApp(): Express {
+    return this.app;
+  }
+}
