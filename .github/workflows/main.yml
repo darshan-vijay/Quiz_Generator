@@ -112,8 +112,8 @@ jobs:
       - name: Build and push frontend image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: /react/Dockerfile.Frontend
+          context: ./react
+          file: ./react/Dockerfile.Frontend
           push: true
           tags: davi1493/quiz-app-frontend:${{ env.FRONTEND_VERSION }}
           build-args: |
