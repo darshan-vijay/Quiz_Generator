@@ -2,6 +2,12 @@ name: Build, Push, and Update GitLab
 
 on: push
 
+env:
+  REACT_APP_API_BASE_URL: ${{ vars.REACT_APP_API_BASE_URL }}
+  GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+  REACT_APP_GOOGLE_CLIENT_ID: ${{ vars.REACT_APP_GOOGLE_CLIENT_ID }}
+  CORS_ORIGIN: ${{ vars.CORS_ORIGIN }}
+
 jobs:
   build-backend:
     runs-on: ubuntu-latest
@@ -47,6 +53,11 @@ jobs:
           file: Dockerfile.Server
           push: true
           tags: davi1493/quiz-app-backend:${{ env.BACKEND_VERSION }}
+          build-args: |
+            REACT_APP_API_BASE_URL=${{ env.REACT_APP_API_BASE_URL }}
+            GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }}
+            REACT_APP_GOOGLE_CLIENT_ID=${{ env.RECT_APP_GOOGLE_CLIENT_ID }}
+            CORS_ORIGIN=${{ env.CORS_ORIGIN }}
 
       - name: Set up SSH for GitLab
         run: |
@@ -101,10 +112,15 @@ jobs:
       - name: Build and push frontend image
         uses: docker/build-push-action@v6
         with:
-          context: ./react
+          context: ./react/
           file: Dockerfile.Frontend
           push: true
           tags: davi1493/quiz-app-frontend:${{ env.FRONTEND_VERSION }}
+          build-args: |
+            REACT_APP_API_BASE_URL=${{ env.REACT_APP_API_BASE_URL }}
+            GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }}
+            REACT_APP_GOOGLE_CLIENT_ID=${{ env.RECT_APP_GOOGLE_CLIENT_ID }}
+            CORS_ORIGIN=${{ env.CORS_ORIGIN }}
 
       - name: Set up SSH for GitLab
         run: |
