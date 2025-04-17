@@ -1,0 +1,19 @@
+# Dockerfile-frontend
+FROM node:18 as builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy entire React frontend
+COPY . ./react
+WORKDIR /app/react
+
+# Install and build
+RUN npm install
+RUN npm run build
+
+# Serve with nginx
+FROM nginx:alpine
+COPY --from=builder /app/react/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

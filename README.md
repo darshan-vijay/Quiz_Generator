@@ -1,16 +1,18 @@
 # Foundations of Software Team 1, Quiz Making API
+
 Mohammed Raihan Ullah, Nikhil Bailey, Vinay Rajesh, Darshan Vijayaraghavan, Onkar Apte, Jyotirmoy Karmakar.
 
-
 ## About this Project
+
 Our project scrapes and collects documents from the web to generate quizzes on demand. The application leverages the capabilities of LLMs to create quiz questions based on the scraped data and user prompts. It then uses the Google Forms API to publish the generated quizzes on Google Forms.
 
 ## Architecture Overview
+
 ![Architecture Diagram](src/public/images/architecture.jpg)
 
 ## Cloud Architecture
-<img src="src/public/images/cloud-architecture.png" width="250">
 
+<img src="src/public/images/cloud-architecture.png" width="250">
 
 ## Technology stack
 
@@ -22,16 +24,19 @@ runs tests.
 
 ## Architecture
 
-The application consists of three main components communicating through a PostgreSQL database:  
+The application consists of three main components communicating through a PostgreSQL database:
 
-#### 1. Collector (Data Collector)  
-A background process that scrapes and collects documents from various web sources, including web pages and PDFs, storing the raw data with titles in the database.  
+#### 1. Collector (Data Collector)
 
-#### 2. Analyzer (Data Analyzer)  
-Another background process that processes the collected data. It leverages LLMs to generate quiz questions based on scraped content and user prompts. It also validates quiz data before storing it.  
+A background process that scrapes and collects documents from various web sources, including web pages and PDFs, storing the raw data with titles in the database.
 
-#### 3. Server (Web Application)  
-The central component that handles user interactions. It allows users to request quizzes, retrieves generated quizzes from the database, and invokes the Google Forms API to publish quizzes on Google Forms.  
+#### 2. Analyzer (Data Analyzer)
+
+Another background process that processes the collected data. It leverages LLMs to generate quiz questions based on scraped content and user prompts. It also validates quiz data before storing it.
+
+#### 3. Server (Web Application)
+
+The central component that handles user interactions. It allows users to request quizzes, retrieves generated quizzes from the database, and invokes the Google Forms API to publish quizzes on Google Forms.
 
 All components communicate through the SQL database, where raw data, quiz requests, and generated quizzes are stored.
 
@@ -41,7 +46,7 @@ The application is currently deployed on Cloud Run using a container image store
 
 ## Major Design Changes
 
- The current deployment process uses Google Cloud Run to host a Dockerized application, with the image built locally, pushed to Google Artifact Registry, and then deployed as a publicly accessible service. However, major architectural changes are planned: the deployment will soon transition to Google Kubernetes Engine (GKE), where individual containers for the collector, analyzer, and the main web application will be orchestrated. This new deployment pipeline will be automated using GitHub Actions, enabling continuous integration and delivery for the entire system.
+The current deployment process uses Google Cloud Run to host a Dockerized application, with the image built locally, pushed to Google Artifact Registry, and then deployed as a publicly accessible service. However, major architectural changes are planned: the deployment will soon transition to Google Kubernetes Engine (GKE), where individual containers for the collector, analyzer, and the main web application will be orchestrated. This new deployment pipeline will be automated using GitHub Actions, enabling continuous integration and delivery for the entire system.
 
 ## Team Coordination Process
 
@@ -54,18 +59,21 @@ We divided tasks based on each team member's strengths and interests. Raihan foc
 ## Local development
 
 1.  Install [node](https://formulae.brew.sh/formula/node) and [PostgreSQL 17](https://formulae.brew.sh/formula/postgresql@17).
+
     ```shell
     brew install node postgresql@17
     brew services run postgresql@17
     ```
 
 1.  Set up environment variables.
+
     ```shell
-    cp .env.example .env 
+    cp .env.example .env
     source .env
     ```
 
 1.  Set up the database.
+
     ```shell
     psql postgres < databases/create_databases.sql
     npm run migrate
@@ -73,6 +81,7 @@ We divided tasks based on each team member's strengths and interests. Raihan foc
     ```
 
 1.  Run tests.
+
     ```shell
     npm run test
     ```
@@ -96,6 +105,7 @@ npx knex migrate:make "[Description of change]" --knexfile databases/knexfile.js
 ## Build container
 
 1.  Build container
+
     ```shell
     npm run build
     docker build -t capstone-starter .
@@ -106,12 +116,14 @@ npx knex migrate:make "[Description of change]" --knexfile databases/knexfile.js
     docker run --env-file .env.docker --entrypoint ./collect.sh capstone-starter
     docker run --env-file .env.docker --entrypoint ./analyze.sh capstone-starter
     docker run -p 8787:8787 --env-file .env.docker capstone-starter
-    ```   
+    ```
 
 ## Running the Application
 
 ### API Server
+
 To run the backend API server:
+
 ```bash
 # Clean and build the project
 npm run clean && npm run build
@@ -119,10 +131,13 @@ npm run clean && npm run build
 # Start the API server
 npm run start
 ```
+
 The API server will run on http://localhost:8080
 
 ### React Frontend
+
 To run the React frontend development server:
+
 ```bash
 # Navigate to the React app directory
 cd src/views/react
@@ -133,6 +148,7 @@ npm install
 # Start the development server
 npm start
 ```
+
 The React app will be available at http://localhost:3000 and will automatically proxy API requests to the backend server.
 
 # Built on: Capstone Starter
@@ -140,7 +156,9 @@ The React app will be available at http://localhost:3000 and will automatically 
 ## Quick Start Guide
 
 ### Installation
+
 To install all required dependencies for both backend and frontend:
+
 ```bash
 # Install all dependencies (both backend and frontend)
 npm run install:all
@@ -149,36 +167,47 @@ npm run install:all
 ### Running the Application
 
 #### Development Mode (Recommended)
+
 To run both the backend server and frontend in development mode with hot reloading:
+
 ```bash
 # Start both the backend server and frontend concurrently
 npm run dev
 ```
+
 This will start:
+
 - Backend server on http://localhost:8080
 - Frontend development server on http://localhost:3000
 
 #### Running Separately
 
 ##### Backend Server
+
 To run only the backend API server:
+
 ```bash
 # Start the backend server
 npm run dev:server
 ```
+
 The API server will run on http://localhost:8080
 
 ##### Frontend Development
+
 To run only the React frontend development server:
+
 ```bash
 # Start the frontend development server
 npm run dev:frontend
 ```
+
 The React app will be available at http://localhost:3000 and will automatically proxy API requests to the backend server.
 
 ### Building and Running in Production
 
 #### Step 1: Build the Project
+
 ```bash
 # Clean the build directory
 npm run clean
@@ -193,12 +222,62 @@ cd ../../..
 ```
 
 #### Step 2: Start the Production Server
+
 ```bash
 # Start the production server
 npm start
 ```
+
 The production server will:
+
 - Serve the backend API on http://localhost:8080
 - Serve the built React frontend from the same server
 
 Note: Make sure all environment variables are properly set in your production environment.
+
+### Running Tests
+
+The project uses Vitest for testing. Here are the available test commands:
+
+#### Running All Tests
+
+```bash
+# Run all tests once
+npm run test
+
+# Run tests in watch mode (automatically re-runs when files change)
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+#### Running Specific Tests
+
+```bash
+# Run only server tests
+npm run test:server
+
+# Run server tests in watch mode
+npm run test:server:watch
+
+# Run a specific test file
+npm run test src/services/server/__tests__/googleFormService.test.ts
+```
+
+#### Test Coverage
+
+To generate and view test coverage:
+
+```bash
+# Generate coverage report
+npm run test:coverage
+
+# The coverage report will be available in the coverage directory
+```
+
+Note: Make sure all dependencies are installed before running tests:
+
+```bash
+npm install
+```
