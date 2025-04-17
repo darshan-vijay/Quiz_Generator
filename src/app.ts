@@ -1,5 +1,17 @@
-import { appServer } from "./webSupport/appServer";
-import { configureApp } from "./appConfig";
-import { environment } from "./environment";
+import dotenv from 'dotenv';
+import { AppServer } from "./webSupport/appServer";
 
-appServer.start(8080, configureApp(environment.fromEnv()));
+// Load environment variables
+dotenv.config();
+
+async function startGoogleFormsApi() {
+  const googleFormsServer = new AppServer();
+  googleFormsServer.configureGoogleFormsApi();
+  await googleFormsServer.start(3001);
+}
+
+// Start the Google Forms API server
+startGoogleFormsApi().catch(error => {
+  console.error('Error starting Google Forms API server:', error);
+  process.exit(1);
+});

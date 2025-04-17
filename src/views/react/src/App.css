@@ -1,0 +1,347 @@
+/* Material Design inspired styles */
+:root {
+  --primary-color: #7c4dff;
+  --primary-light: #b47cff;
+  --primary-dark: #3f1dcb;
+  --secondary-color: #f8f5ff;
+  --text-primary: #2c2c2c;
+  --text-secondary: #666666;
+  --error-color: #ff5252;
+  --success-color: #4caf50;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #fafafa;
+  color: var(--text-primary);
+}
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  padding: 2rem 1rem;
+  text-align: center;
+  color: white;
+  box-shadow: var(--box-shadow);
+}
+
+.App-header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 500;
+}
+
+.App-header p {
+  margin: 0.5rem 0 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.App-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Auth Section */
+.auth-section, .quiz-section {
+  background-color: white;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 2rem;
+}
+
+.auth-section h2, .quiz-section h2 {
+  margin-top: 0;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Google Login Button */
+.google-login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: white;
+  color: var(--text-primary);
+  border: 1px solid #ddd;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px rgba(124, 77, 255, 0.1);
+}
+
+.google-login-button:hover {
+  background-color: var(--secondary-color);
+  box-shadow: 0 4px 8px rgba(124, 77, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.login-note {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Quiz Section */
+.quiz-info {
+  background-color: var(--secondary-color);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+}
+
+.quiz-info h3 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.quiz-info p {
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+/* Questions Selection */
+.questions-selection {
+  margin-top: 1rem;
+}
+
+.selection-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.select-all-button {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.select-all-button:hover {
+  background-color: var(--secondary-color);
+  border-radius: var(--border-radius);
+}
+
+.questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.question-item {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.question-item:hover {
+  background-color: var(--secondary-color);
+}
+
+.question-item.selected {
+  border-color: var(--primary-color);
+  background-color: rgba(124, 77, 255, 0.05);
+}
+
+.question-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.question-checkbox input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+}
+
+.question-title {
+  font-weight: 500;
+}
+
+.question-details {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Create Quiz Button */
+.creation-options {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.create-quiz-button {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px rgba(124, 77, 255, 0.2);
+}
+
+.create-quiz-button:hover {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+  box-shadow: 0 4px 8px rgba(124, 77, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.create-quiz-button:disabled {
+  background-color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* Messages */
+.success-message, .error-message {
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+}
+
+.success-message {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.error-message {
+  background-color: var(--error-color);
+  color: white;
+}
+
+/* User Info */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* Form Link */
+.form-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: white;
+  text-decoration: underline;
+}
+
+/* Footer */
+.App-footer {
+  background-color: var(--secondary-color);
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.App-footer p {
+  margin: 0.5rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .App-main {
+    padding: 1rem;
+  }
+  
+  .auth-section, .quiz-section {
+    padding: 1rem;
+  }
+  
+  .App-header h1 {
+    font-size: 2rem;
+  }
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.testing-help {
+  background-color: #fff8e1;
+  border-left: 4px solid #ffc107;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: var(--border-radius);
+}
+
+.testing-help h3 {
+  margin-top: 0;
+  color: #ff8f00;
+}
+
+.testing-help ol {
+  padding-left: 1.5rem;
+}
+
+.testing-help a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.testing-help a:hover {
+  text-decoration: underline;
+}
+ 

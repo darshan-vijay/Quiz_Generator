@@ -1,11 +1,13 @@
 # Dependencies
 node_modules/
+src/views/react/node_modules/
 
 # Build outputs
 build/
 dist/
 out/
 /build/
+src/views/react/build/
 
 # TypeScript
 *.tsbuildinfo
@@ -14,6 +16,9 @@ out/
 .env
 .env.local
 .env.*.local
+src/views/react/.env
+src/views/react/.env.local
+src/views/react/.env.*.local
 
 # IDE and editor files
 .idea/
