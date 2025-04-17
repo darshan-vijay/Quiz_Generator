@@ -1,0 +1,21 @@
+# Dockerfile-server
+FROM node:18
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files and install server dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy rest of the server source code
+COPY . .
+
+# Build the TypeScript project
+RUN npm run build
+
+# Expose backend port (adjust if needed)
+EXPOSE 3001
+
+# Start the server
+CMD ["node", "build/app.js"]
