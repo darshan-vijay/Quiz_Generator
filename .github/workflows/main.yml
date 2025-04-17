@@ -44,7 +44,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile-server
+          file: Dockerfile.Server
           push: true
           tags: davi1493/quiz-app-backend:${{ env.BACKEND_VERSION }}
 
@@ -102,7 +102,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./react
-          file: Dockerfile-frontend
+          file: Dockerfile.Frontend
           push: true
           tags: davi1493/quiz-app-frontend:${{ env.FRONTEND_VERSION }}
 
