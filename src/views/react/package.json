@@ -12,6 +12,8 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "ajv": "^6.12.6",
+    "ajv-keywords": "^3.5.2",
     "buffer": "^6.0.3",
     "fs-extra": "^11.3.0",
     "gapi-script": "^1.2.0",
@@ -51,4 +53,4 @@
       "last 1 safari version"
     ]
   }
-} 
+}
