@@ -1,31 +1,22 @@
 # Dockerfile-server
 FROM node:18
 
-# Set working directory
 WORKDIR /app
 
-ARG REACT_APP_API_BASE_URL
-ARG GOOGLE_CLIENT_ID
-ARG REACT_APP_GOOGLE_CLIENT_ID
+ARG DATABASE_URL
 ARG CORS_ORIGIN
 
-ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
-ENV GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
-ENV REACT_APP_GOOGLE_CLIENT_ID=$REACT_APP_GOOGLE_CLIENT_ID
+ENV DATABASE_URL=$DATABASE_URL
 ENV CORS_ORIGIN=$CORS_ORIGIN
+ENV GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
 
-# Copy package files and install server dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy rest of the server source code
 COPY . .
 
-# Build the TypeScript project
 RUN npm run build
 
-# Expose backend port (adjust if needed)
 EXPOSE 3001
 
-# Start the server
 CMD ["node", "build/app.js"]
