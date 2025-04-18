@@ -16,7 +16,7 @@
     "ajv": "^6.12.6",
     "ajv-keywords": "^3.5.2",
     "buffer": "^6.0.3",
-    "drizzle-orm": "^0.42.0",
+    "dotenv": "^16.5.0",
     "fs-extra": "^11.3.0",
     "gapi-script": "^1.2.0",
     "googleapis": "^146.0.0",
@@ -54,8 +54,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "drizzle-kit": "^0.31.0"
   }
 }
