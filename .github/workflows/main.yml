@@ -1,12 +1,19 @@
 name: Build, Push, and Update GitLab
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 env:
+  DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   REACT_APP_API_BASE_URL: ${{ vars.REACT_APP_API_BASE_URL }}
-  GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
-  REACT_APP_GOOGLE_CLIENT_ID: ${{ vars.REACT_APP_GOOGLE_CLIENT_ID }}
+  GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+  REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
   CORS_ORIGIN: ${{ vars.CORS_ORIGIN }}
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  GITLAB_DEPLOY_KEY: ${{ secrets.GITLAB_DEPLOY_KEY }}
 
 jobs:
   build-backend:
@@ -31,8 +38,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -54,15 +61,14 @@ jobs:
           push: true
           tags: davi1493/quiz-app-backend:${{ env.BACKEND_VERSION }}
           build-args: |
-            REACT_APP_API_BASE_URL=${{ env.REACT_APP_API_BASE_URL }}
             GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }}
-            REACT_APP_GOOGLE_CLIENT_ID=${{ env.RECT_APP_GOOGLE_CLIENT_ID }}
             CORS_ORIGIN=${{ env.CORS_ORIGIN }}
+            DATABASE_URL=${{ env.DATABASE_URL }}
 
       - name: Set up SSH for GitLab
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GITLAB_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ env.GITLAB_DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
 
@@ -94,8 +100,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -118,14 +124,12 @@ jobs:
           tags: davi1493/quiz-app-frontend:${{ env.FRONTEND_VERSION }}
           build-args: |
             REACT_APP_API_BASE_URL=${{ env.REACT_APP_API_BASE_URL }}
-            GOOGLE_CLIENT_ID=${{ env.GOOGLE_CLIENT_ID }}
-            REACT_APP_GOOGLE_CLIENT_ID=${{ env.RECT_APP_GOOGLE_CLIENT_ID }}
-            CORS_ORIGIN=${{ env.CORS_ORIGIN }}
+            REACT_APP_GOOGLE_CLIENT_ID=${{ env.REACT_APP_GOOGLE_CLIENT_ID }}
 
       - name: Set up SSH for GitLab
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.GITLAB_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ env.GITLAB_DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
 
