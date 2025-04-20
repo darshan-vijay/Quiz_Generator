@@ -15,6 +15,14 @@ export class AppServer {
         allowedHeaders: ["Content-Type", "Authorization"],
       })
     );
+
+    this.app.use((req, res, next) => {
+      res.removeHeader("Cross-Origin-Opener-Policy");
+      res.removeHeader("Cross-Origin-Embedder-Policy");
+      res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none");
+      res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+      next();
+    });
   }
 
   public configureGoogleFormsApi(): void {
