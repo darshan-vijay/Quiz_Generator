@@ -23,6 +23,7 @@
     "@react-oauth/google": "^0.12.1",
     "@types/dotenv": "^6.1.1",
     "@types/pg": "^8.11.13",
+    "axios": "^1.8.4",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "drizzle-kit": "^0.31.0",
