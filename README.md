@@ -160,7 +160,7 @@ The React app will be available at http://localhost:3000 and will automatically 
 To install all required dependencies for both backend and frontend:
 
 ```bash
-# Install all dependencies (both backend and frontend)
+# Install all dependencies both backend and frontend
 npm run install:all
 ```
 
