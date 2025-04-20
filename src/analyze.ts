@@ -1,1 +1,1 @@
-console.log("Analyzing data for real");
+console.log("Analyzing data");
