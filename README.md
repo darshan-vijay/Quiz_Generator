@@ -273,7 +273,7 @@ To generate and view test coverage:
 # Generate coverage report
 npm run test:coverage
 
-# The coverage report will be available in the coverage directory
+# The coverage report will be available in the directory
 ```
 
 Note: Make sure all dependencies are installed before running tests:
