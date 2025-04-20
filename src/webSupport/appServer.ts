@@ -31,7 +31,7 @@ export class AppServer {
 
   public async start(port: number): Promise<void> {
     return new Promise((resolve) => {
-      this.app.listen(port, () => {
+      this.app.listen(port, "0.0.0.0", () => {
         console.log(`Server running on port ${port}`);
         console.log(
           `Google Forms API available at ${process.env.CORS_ORIGIN}/api/google-forms`
