@@ -50,7 +50,7 @@ export type Question = z.infer<typeof QuesSchema>;
 export function validateQuiz(data : unknown): {
     valid: boolean;
     validatedData?: Quiz;
-    error?: z.ZodError;
+    errors?: z.ZodError;
 } {
     try {
         const validatedData = QuizSchema.parse(data);
@@ -63,7 +63,7 @@ export function validateQuiz(data : unknown): {
         if (error instanceof z.ZodError) {
             return {
                 valid: false,
-                error: error,
+                errors: error,
             };
         }
         throw error;   
@@ -73,7 +73,7 @@ export function validateQuiz(data : unknown): {
 export function validateQuestion(data : unknown): {
     valid: boolean;
     validatedData?: Question;
-    error?: z.ZodError;
+    errors?: z.ZodError;
 } {
     try {
         const validatedData = QuesSchema.parse(data);
@@ -86,7 +86,7 @@ export function validateQuestion(data : unknown): {
         if (error instanceof z.ZodError) {
             return {
                 valid: false,
-                error: error,
+                errors: error,
             };
         }
         throw error;
