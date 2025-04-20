@@ -171,7 +171,7 @@ npm run install:all
 To run both the backend server and frontend in development mode with hot reloading:
 
 ```bash
-# Start both the backend server and frontend concurrently
+# Start both the backend server and frontend concurrent
 npm run dev
 ```
 
