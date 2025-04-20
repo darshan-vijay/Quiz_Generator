@@ -1,6 +1,6 @@
-import express, { Express } from 'express';
-import { configureGoogleFormApi } from '../services/server/apiConfig';
-import cors from 'cors';
+import express, { Express } from "express";
+import { configureGoogleFormApi } from "../services/server/apiConfig";
+import cors from "cors";
 
 export class AppServer {
   private app: Express;
@@ -8,11 +8,13 @@ export class AppServer {
   constructor() {
     this.app = express();
     // Configure CORS
-    this.app.use(cors({
-      origin: 'http://localhost:3000', // React app's URL
-      methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Authorization']
-    }));
+    this.app.use(
+      cors({
+        origin: process.env.CORS_ORIGIN, // React app's URL
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+      })
+    );
   }
 
   public configureGoogleFormsApi(): void {
@@ -23,7 +25,9 @@ export class AppServer {
     return new Promise((resolve) => {
       this.app.listen(port, () => {
         console.log(`Server running on port ${port}`);
-        console.log(`Google Forms API available at http://localhost:${port}/api/google-forms`);
+        console.log(
+          `Google Forms API available at ${process.env.CORS_ORIGIN}/api/google-forms`
+        );
         resolve();
       });
     });
