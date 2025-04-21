@@ -1,29 +1,20 @@
-import express from 'express';
+import express, { Express } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { createQuizRouter } from './route';
 
-dotenv.config();
+export const configureAnalyzerService = (app: Express): Express => {
+    // Configure CORS with more specific settings
+    app.use(cors({
+        origin:  '*',
+        methods: "*",
+        allowedHeaders: ['Content-Type', 'Authorization'],
+    }));
 
-const app = express();
-const PORT = process.env.PORT || 3002;
+    // Add JSON body parser middleware with size limit
+    app.use(express.json());
 
-app.use(cors({
-    origin: '*',
-    methods: '*',
-    allowedHeaders: '*',
-}));
+    // Mount quiz routes
+    app.use('/api/quiz', createQuizRouter());
 
-// Add JSON body parser middleware
-app.use(express.json());
-
-
-app.use('/api/quiz', createQuizRouter());
-
-if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
-}
-
-export const analyzerApp = app;
+    return app;
+}; 
