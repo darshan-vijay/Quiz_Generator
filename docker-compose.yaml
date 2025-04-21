@@ -10,6 +10,7 @@ services:
         GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     ports:
       - "3001:3001"
+      - "3002:3002"
     env_file:
       - .env
 
