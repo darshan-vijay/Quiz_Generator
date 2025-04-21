@@ -28,21 +28,13 @@ export interface QuestionCounts {
 }
 
 export class LLMService {
-    private apiKey: string;
     private baseUrl: string = 'https://api.openai.com/v1/chat/completions';
-
-    constructor(apiKey?: string) {
-        const key = apiKey || process.env.OPENAI_API_KEY;
-        if (!key) {
-            throw new Error('OPENAI_API_KEY is not set');
-        }
-        this.apiKey = key;
-    }
 
     async generateQuiz(
         topic : string,
         questionCount: number = 5,
-        counts?: QuestionCounts
+        apiKey: string,
+        counts?: QuestionCounts,
     ): Promise<GenerateQuiz> {
 
         const prompt = this.buildPrompt(topic, questionCount, counts);
@@ -67,7 +59,7 @@ export class LLMService {
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Authorization': `Bearer ${apiKey}`,
                     
                 }
             }
@@ -121,10 +113,11 @@ ${quesTypeInstructions}
 
 For each question, specify:
 - The question title/text
-- Question type
+- Question type (use 'multiple_choice' for both single and multiple select questions)
 - Answer options (for multiple choice/select)
 - Correct answer(s)
 - Point value (1-3 based on difficulty)
+- For multiple select questions, set isMultiSelect to true and use correctAnswers array
 
 Please format the response as a valid JSON object that matches this structure:
 {

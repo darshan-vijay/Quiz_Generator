@@ -10,8 +10,14 @@ const MultipleChoiceBase = z.object({
     isMultiSelect: z.boolean().optional(),
 }).and(
     z.union([
-        z.object({ correctAnswer: z.string() }),
-        z.object({ correctAnswers: z.array(z.string()) }),
+        z.object({ 
+            correctAnswer: z.string(),
+            correctAnswers: z.undefined()
+        }),
+        z.object({ 
+            correctAnswers: z.array(z.string()),
+            correctAnswer: z.undefined()
+        })
     ])
 );
 

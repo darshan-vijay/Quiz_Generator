@@ -5,13 +5,13 @@ import { validateQuiz, formatZodError } from './validation';
 export class QuizController {
     private llmService: LLMService;
 
-    constructor(apiKey?: string) {
-        this.llmService = new LLMService(apiKey);
+    constructor() {
+        this.llmService = new LLMService();
     }
 
     generateQuiz = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { topic, questionCount, multipleChoice, multipleSelect, shortAnswer, paragraph } = req.body;
+            const { topic, questionCount, multipleChoice, multipleSelect, shortAnswer, paragraph, apiKey } = req.body;
 
             if (!topic) {
                 res.status(400).json({ 
@@ -56,7 +56,7 @@ export class QuizController {
                 }
             }
 
-            const quiz = await this.llmService.generateQuiz(topic, count, questionCounts);
+            const quiz = await this.llmService.generateQuiz(topic, count, apiKey, questionCounts);
 
             const validationResult = validateQuiz(quiz);
 

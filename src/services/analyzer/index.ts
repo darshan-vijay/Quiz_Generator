@@ -17,9 +17,8 @@ app.use(cors({
 // Add JSON body parser middleware
 app.use(express.json());
 
-const apiKey = process.env.API_KEY;
 
-app.use('/api/quiz', createQuizRouter(apiKey));
+app.use('/api/quiz', createQuizRouter());
 
 if (require.main === module) {
     app.listen(PORT, () => {
@@ -27,4 +26,4 @@ if (require.main === module) {
     });
 }
 
-export default app;
+export const analyzerApp = app;
