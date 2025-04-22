@@ -5,10 +5,10 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-  schema: "./src/database/schema.ts",
-  out: "./src/migrations",
+  schema: "./database/schema.ts",
+  out: "./migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.REACT_APP_DATABASE_URL!,
+    url: process.env.DATABASE_URL || process.env.REACT_APP_DATABASE_URL!,
   },
 });

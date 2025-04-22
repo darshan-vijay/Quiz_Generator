@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
 import { LLMService, QuestionCounts } from './llmService';
 import { validateQuiz, formatZodError } from './validation';
+import { QuizRepository } from './quizRepository';
 
 export class QuizController {
     private llmService: LLMService;
+    private quizRepository: QuizRepository;
 
     constructor() {
         this.llmService = new LLMService();
+        this.quizRepository = new QuizRepository();
     }
 
     generateQuiz = async (req: Request, res: Response): Promise<void> => {
@@ -18,6 +21,7 @@ export class QuizController {
                     success: false,
                     error: 'Topic is required' 
                 });
+                return; // Added return to prevent further execution
             }
 
             const count = questionCount || 5;
@@ -60,9 +64,9 @@ export class QuizController {
 
             const validationResult = validateQuiz(quiz);
 
-            if(!validationResult.valid) {
+            if(!validationResult.valid || !validationResult.validatedData) {
                 console.error('Generated quiz failed Zod validation:');
-                const errors = formatZodError(validationResult.errors!);
+                const errors = validationResult.errors ? formatZodError(validationResult.errors) : ['Validation failed'];
                 errors.forEach(error => console.error(error));
 
                 res.status(400).json({
@@ -71,23 +75,91 @@ export class QuizController {
                     validationErrors: errors,
                     quiz: quiz // Return invalid quiz for debugging
                 });
+                return; // Added return to prevent further execution
             }
 
             const validatedQuiz = validationResult.validatedData;
 
-            // TODO: Save quiz to database
-
-            res.json({
-                success: true,
-                quiz: validatedQuiz
-            });
+            // Save quiz to database
+            try {
+                const quizId = await this.quizRepository.saveQuiz(validatedQuiz, topic);
+                console.log(`Quiz saved to database with ID: ${quizId}`);
+                
+                res.json({
+                    success: true,
+                    quiz: validatedQuiz,
+                    quizId: quizId
+                });
+            } catch (dbError) {
+                console.error('Error saving quiz to database:', dbError);
+                // Still return the quiz even if database save fails
+                res.json({
+                    success: true,
+                    quiz: validatedQuiz,
+                    databaseError: 'Failed to save quiz to database'
+                });
+            }
             
         } catch (error : any) {
             console.error('Error generating quiz:', error.message);
             res.status(500).json({
                 success: false,
                 error: error.message
-            })
+            });
+        }
+    }
+    
+    // Add a new endpoint to retrieve a quiz by its ID
+    getQuiz = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { id } = req.params;
+            
+            if (!id) {
+                res.status(400).json({
+                    success: false,
+                    error: 'Quiz ID is required'
+                });
+                return;
+            }
+            
+            const quiz = await this.quizRepository.getQuizById(id);
+            
+            if (!quiz) {
+                res.status(404).json({
+                    success: false,
+                    error: 'Quiz not found'
+                });
+                return;
+            }
+            
+            res.json({
+                success: true,
+                quiz
+            });
+        } catch (error: any) {
+            console.error('Error retrieving quiz:', error.message);
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+
+    // Add a new endpoint to retrieve all quizzes
+    getAllQuizzes = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const quizzes = await this.quizRepository.getAllQuizzes();
+            
+            res.json({
+                success: true,
+                quizzes
+            });
+        } catch (error: any) {
+            console.error('Error retrieving quizzes:', error.message);
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
         }
     }
 }

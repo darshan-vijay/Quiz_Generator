@@ -16,9 +16,22 @@ RUN npm install
 
 COPY . .
 
+# Build the project
+RUN npm run clean
 RUN npm run build
 
 EXPOSE 3001
-EXPOSE 3002
 
-CMD ["node", "build/app.js"]
+# Create an entrypoint script
+COPY <<EOF /app/entrypoint.sh
+#!/bin/bash
+set -e
+
+# Start the server
+echo "Starting server service..."
+node build/src/app.js
+EOF
+
+RUN chmod +x /app/entrypoint.sh
+
+CMD ["/app/entrypoint.sh"]

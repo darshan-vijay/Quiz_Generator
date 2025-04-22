@@ -1,5 +1,22 @@
 version: "3"
 services:
+  postgres:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: capstone_starter
+      POSTGRES_PASSWORD: capstone_starter
+      POSTGRES_DB: capstone_starter
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U capstone_starter"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   server:
     build:
       context: .
@@ -10,9 +27,31 @@ services:
         GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     ports:
       - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:5432/capstone_starter?user=capstone_starter&password=capstone_starter
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  analyzer:
+    build:
+      context: .
+      dockerfile: Dockerfile.Analyzer
+      args:
+        DATABASE_URL: ${DATABASE_URL}
+        CORS_ORIGIN: ${CORS_ORIGIN}
+        REACT_APP_ANALYZER_API_BASE_URL: ${REACT_APP_ANALYZER_API_BASE_URL}
+    ports:
       - "3002:3002"
     env_file:
       - .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:5432/capstone_starter?user=capstone_starter&password=capstone_starter
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   frontend:
     build:
@@ -21,7 +60,11 @@ services:
       args:
         REACT_APP_API_BASE_URL: ${REACT_APP_API_BASE_URL}
         REACT_APP_GOOGLE_CLIENT_ID: ${REACT_APP_GOOGLE_CLIENT_ID}
+        REACT_APP_ANALYZER_API_BASE_URL: ${REACT_APP_ANALYZER_API_BASE_URL}
     ports:
       - "3000:80"
     env_file:
       - .env
+
+volumes:
+  postgres_data:

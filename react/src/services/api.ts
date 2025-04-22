@@ -8,6 +8,7 @@ import {
 
 // Use environment variable for API base URL
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const ANALYZER_API_BASE_URL = process.env.REACT_APP_ANALYZER_API_BASE_URL;
 
 export class ApiClient {
   /**
@@ -162,5 +163,67 @@ export class ApiClient {
     if (onLog && result.logs) {
       result.logs.forEach((log: string) => onLog(log));
     }
+  }
+
+  /**
+   * Fetch all quizzes from the database
+   */
+  static async getAllQuizzes() {
+    const response = await fetch(`${ANALYZER_API_BASE_URL}/quizzes`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Fetch a quiz by its ID
+   */
+  static async getQuizById(quizId: string) {
+    const response = await fetch(`${ANALYZER_API_BASE_URL}/quiz/${quizId}`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Generate a new quiz
+   */
+  static async generateQuiz(
+    topic: string, 
+    questionCount: number, 
+    apiKey: string,
+    multipleChoice?: number, 
+    multipleSelect?: number, 
+    shortAnswer?: number, 
+    paragraph?: number
+  ) {
+    const response = await fetch(`${ANALYZER_API_BASE_URL}/generate-quiz`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        topic,
+        questionCount,
+        apiKey,
+        multipleChoice,
+        multipleSelect,
+        shortAnswer,
+        paragraph
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || `HTTP error! Status: ${response.status}`);
+    }
+
+    return response.json();
   }
 }

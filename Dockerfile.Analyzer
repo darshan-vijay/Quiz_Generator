@@ -1,0 +1,49 @@
+# Dockerfile-analyzer
+FROM node:18
+
+WORKDIR /app
+
+ARG DATABASE_URL
+ARG CORS_ORIGIN
+ARG REACT_APP_ANALYZER_API_BASE_URL
+
+ENV DATABASE_URL=$DATABASE_URL
+ENV CORS_ORIGIN=$CORS_ORIGIN
+ENV REACT_APP_ANALYZER_API_BASE_URL=$REACT_APP_ANALYZER_API_BASE_URL
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+# Build the project
+RUN npm run clean
+RUN npm run build
+
+EXPOSE 3002
+
+# Create an entrypoint script
+COPY <<EOF /app/entrypoint.sh
+#!/bin/bash
+set -e
+
+# Run database migrations
+echo "Running database migrations..."
+# Check if drizzle.config.ts exists
+if [ -f "./drizzle.config.ts" ]; then
+  echo "Found drizzle.config.ts, running migrations..."
+  # Ensure the database is ready
+  npx drizzle-kit generate
+  npx drizzle-kit push
+else
+  echo "No drizzle.config.ts found, skipping migrations"
+fi
+
+# Start the analyzer service
+echo "Starting analyzer service..."
+node build/src/analyze.js
+EOF
+
+RUN chmod +x /app/entrypoint.sh
+
+CMD ["/app/entrypoint.sh"] 

@@ -1,19 +1,23 @@
 {
   "name": "capstone-starter",
   "version": "1.0.0",
-  "main": "build/app.js",
+  "main": "build/src/app.js",
   "scripts": {
-    "start": "node build/app.js",
-    "collect": "node build/collect.js",
-    "analyze": "node build/analyze.js",
+    "start": "node build/src/app.js",
+    "start:server": "node build/src/app.js",
+    "start:analyzer": "node build/src/analyze.js",
+    "start:all": "concurrently \"npm run start:server\" \"npm run start:analyzer\"",
+    "collect": "node build/src/collect.js",
+    "analyze": "node build/src/analyze.js",
     "migrate": "knex migrate:latest --knexfile databases/knexfile.js",
     "build": "tsc",
     "build:backend": "npm run clean && npm run build",
     "clean": "rm -rf ./build",
     "watch": "nodemon src/app.ts",
     "test": "tsc --noEmit && vitest run",
-    "dev:server": "nodemon --watch 'src/**/*.ts' --exec 'ts-node --transpile-only' src/app.ts",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:frontend\""
+    "dev:server": "nodemon --watch 'src/**/*.ts' --watch 'database/**/*.ts' --exec 'ts-node --transpile-only -r tsconfig-paths/register' src/app.ts",
+    "dev:analyzer": "nodemon --watch 'src/**/*.ts' --watch 'database/**/*.ts' --exec 'ts-node --transpile-only -r tsconfig-paths/register' src/analyze.ts",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:analyzer\" \"npm run dev:frontend\""
   },
   "author": "",
   "license": "ISC",
@@ -29,17 +33,23 @@
     "drizzle-kit": "^0.31.0",
     "drizzle-orm": "^0.42.0",
     "express": "^4.21.2",
+    "module-alias": "^2.2.3",
     "pg": "^8.14.1",
     "typescript": "^4.9.5",
+    "uuid": "^11.1.0",
+    "wait-on": "^7.2.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/module-alias": "^2.0.4",
     "@types/node": "^20.17.30",
+    "@types/uuid": "^10.0.0",
     "concurrently": "^8.2.2",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "vitest": "^3.0.7"
   }

@@ -3,14 +3,18 @@
     "target": "es6",
     "module": "commonjs",
     "outDir": "./build",
-    "rootDir": "./src",
+    "rootDirs": ["./src", "./database"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@database/*": ["database/*"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "database/**/*"],
   "exclude": [
     "src/views/react/**/*",
     "src/databaseSupport/**/*",
