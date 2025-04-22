@@ -1,6 +1,9 @@
 name: Build, Push, and Update GitLab
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 env:
   DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}

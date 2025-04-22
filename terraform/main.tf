@@ -21,7 +21,7 @@ provider "google" {
 }
 
 resource "google_container_cluster" "primary" {
-  name     = "quiz-app-cluster"
+  name     = "quizzy-app-cluster"
   location = "us-east1"
 
   remove_default_node_pool = true
