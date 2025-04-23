@@ -17,6 +17,7 @@ env:
   REACT_APP_DATABASE_URL: ${{ secrets.REACT_APP_DATABASE_URL }}
   GITLAB_DEPLOY_KEY: ${{ secrets.GITLAB_DEPLOY_KEY }}
   OPEN_API_KEY: ${{ secrets.OPEN_API_KEY}}
+  COLLECTOR_DATABASE_URL: ${{ secrets.COLLECTOR_DATABASE_URL}}
 
 jobs:
   build-backend:
@@ -252,7 +253,7 @@ jobs:
           push: true
           tags: davi1493/quiz-collector-app:${{ env.COLLECTOR_VERSION }}
           build-args: |
-            DATABASE_URL=${{ env.DATABASE_URL }}
+            COLLECTOR_DATABASE_URL=${{ env.COLLECTOR_DATABASE_URL }}
             OPEN_API_KEY=${{ env.OPEN_API_KEY }}
 
       - name: Set up SSH for GitLab
