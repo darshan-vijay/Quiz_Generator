@@ -16,6 +16,7 @@ env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
   REACT_APP_DATABASE_URL: ${{ secrets.REACT_APP_DATABASE_URL }}
   GITLAB_DEPLOY_KEY: ${{ secrets.GITLAB_DEPLOY_KEY }}
+  OPEN_API_KEY: ${{ secrets.OPEN_API_KEY}}
 
 jobs:
   build-backend:
@@ -215,4 +216,66 @@ jobs:
           cd gitlab-repo
           git add manifests/analyzer-deployment.yaml
           git commit -m "chore: update analyzer image tag to ${{ env.ANALYZER_VERSION }}"
+          git push origin main
+
+  build-collector:
+    runs-on: ubuntu-latest
+    needs:
+      - build-analyzer
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate collector version
+        id: collector-version
+        run: |
+          COLLECTOR_VERSION="v$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
+          echo "COLLECTOR_VERSION=$COLLECTOR_VERSION" >> $GITHUB_ENV
+
+      - name: Build and push collector image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./collector
+          file: ./collector/Dockerfile
+          push: true
+          tags: davi1493/quiz-collector-app:${{ env.COLLECTOR_VERSION }}
+          build-args: |
+            DATABASE_URL=${{ env.DATABASE_URL }}
+            OPEN_API_KEY=${{ env.OPEN_API_KEY }}
+
+      - name: Set up SSH for GitLab
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ env.GITLAB_DEPLOY_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
+
+      - name: Clone GitLab repo
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git clone --depth=1 git@gitlab.com:cu-group/quiz-proj.git gitlab-repo
+
+      - name: Update collector image tag
+        run: |
+          cd gitlab-repo/manifests
+          sed -i "s|image: .*quiz-collector-app:.*|image: docker.io/davi1493/quiz-collector-app:${{ env.COLLECTOR_VERSION }}|" collector-deployment.yaml
+
+      - name: Commit and push collector update
+        run: |
+          cd gitlab-repo
+          git add manifests/collector-deployment.yaml
+          git commit -m "chore: update collector image tag to ${{ env.COLLECTOR_VERSION }}"
           git push origin main
