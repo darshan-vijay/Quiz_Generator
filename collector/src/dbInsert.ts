@@ -8,7 +8,7 @@ const client = new Client({
 });
 
 let isConnected = false;
-
+// db conn check
 async function ensureConnected() {
   if (!isConnected) {
     await client.connect();
