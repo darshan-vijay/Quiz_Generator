@@ -1,6 +1,9 @@
 import express, { Express } from "express";
 import { configureGoogleFormApi } from "../services/server/apiConfig";
 import cors from "cors";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export class AppServer {
   private app: Express;
@@ -10,19 +13,14 @@ export class AppServer {
     // Configure CORS
     this.app.use(
       cors({
-        origin: process.env.CORS_ORIGIN, // React app's URL
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"],
+        origin: '*', // React app's URL
+        methods: '*',
+        allowedHeaders: '*',
       })
     );
 
-    this.app.use((req, res, next) => {
-      res.removeHeader("Cross-Origin-Opener-Policy");
-      res.removeHeader("Cross-Origin-Embedder-Policy");
-      res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none");
-      res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
-      next();
-    });
+    // Add JSON body parser middleware
+    this.app.use(express.json());
   }
 
   public configureGoogleFormsApi(): void {

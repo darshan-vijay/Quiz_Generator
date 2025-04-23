@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import "./App.css";
-import quizData from "./quizData.json";
 import { UserInfo } from "./services/googleFormAuthServiceModels";
 import { QuizData } from "./services/googleFormServiceModels";
 import { ApiClient } from "./services/api";
+import QuizSelectorList from "./components/QuizSelectorList";
+import QuizGenerator from "./components/QuizGenerator";
 // import FormModifier from './components/FormModifier';
 // import './components/FormModifier.css';
 // import { db } from "./database/drizzle";
@@ -132,39 +133,8 @@ function App() {
   const [createdFormUrl, setCreatedFormUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const [selectedQuestions, setSelectedQuestions] = useState<Set<number>>(
-    new Set()
-  );
   const [createdFormId, setCreatedFormId] = useState<string | null>(null);
-
-  // Initialize all questions as selected
-  useEffect(() => {
-    setSelectedQuestions(new Set(quizData.questions.map((_, index) => index)));
-  }, []);
-
-  // Function to toggle question selection
-  const toggleQuestion = (index: number) => {
-    setSelectedQuestions((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
-      } else {
-        newSet.add(index);
-      }
-      return newSet;
-    });
-  };
-
-  // Function to select/deselect all questions
-  const toggleAllQuestions = () => {
-    if (selectedQuestions.size === quizData.questions.length) {
-      setSelectedQuestions(new Set());
-    } else {
-      setSelectedQuestions(
-        new Set(quizData.questions.map((_, index) => index))
-      );
-    }
-  };
+  const [refreshKey, setRefreshKey] = useState<number>(0);
 
   const handleAccessTokenSuccess = (token: string) => {
     setAccessToken(token);
@@ -176,31 +146,6 @@ function App() {
 
   const handleLoginError = (errorMsg: string) => {
     setError(errorMsg);
-  };
-
-  const handleCreateQuiz = async () => {
-    if (!accessToken) {
-      setError("Please sign in with Google first");
-      return;
-    }
-
-    setIsCreating(true);
-    setError(null);
-
-    try {
-      const result = await ApiClient.createForm(
-        accessToken,
-        quizData as QuizData,
-        selectedQuestions
-      );
-
-      setCreatedFormId(result.formId);
-      setCreatedFormUrl(result.formUrl);
-    } catch (err: any) {
-      setError(`Failed to complete form creation: ${err.message}`);
-    } finally {
-      setIsCreating(false);
-    }
   };
 
   const handleDbResults = async () => {
@@ -246,85 +191,41 @@ function App() {
             )}
           </div>
 
-          <div className="quiz-section">
-            <h2>Step 2: Select Questions</h2>
-            <div className="quiz-info">
-              <h3>Form Information</h3>
-              <p>
-                <strong>Title:</strong> {quizData.quizTitle}
-              </p>
-              <p>
-                <strong>Description:</strong> {quizData.description}
-              </p>
-              <p>
-                <strong>Selected Questions:</strong> {selectedQuestions.size} of{" "}
-                {quizData.questions.length}
-              </p>
-            </div>
-
-            <div className="questions-selection">
-              <div className="selection-header">
-                <button
-                  onClick={toggleAllQuestions}
-                  className="select-all-button"
-                >
-                  {selectedQuestions.size === quizData.questions.length
-                    ? "Deselect All"
-                    : "Select All"}
-                </button>
-              </div>
-              <div className="questions-list">
-                {quizData.questions.map((question, index) => (
-                  <div
-                    key={index}
-                    className={`question-item ${
-                      selectedQuestions.has(index) ? "selected" : ""
-                    }`}
-                  >
-                    <label className="question-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={selectedQuestions.has(index)}
-                        onChange={() => toggleQuestion(index)}
-                      />
-                      <span className="question-title">{question.title}</span>
-                    </label>
-                    <div className="question-details">
-                      <span className="question-type">{question.type}</span>
-                      <span className="question-points">
-                        {question.points} points
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="creation-options">
-              <button
-                onClick={handleCreateQuiz}
-                disabled={isCreating || !accessToken}
-                className="create-quiz-button"
-              >
-                {isCreating ? "Creating Form..." : "Create Form with API"}
-              </button>
-            </div>
-
+          {/* Interactive Quiz Selector Section */}
+          <div className="quiz-list-section">
+            <h2>Quiz Creation Center</h2>
+            <p className="section-description">Generate new quizzes or use existing ones to create Google Forms.</p>
+            <QuizGenerator 
+              accessToken={accessToken}
+              onQuizGenerated={() => {
+                // Refresh the quiz list when a new quiz is generated
+                setRefreshKey(prev => prev + 1);
+              }}
+              isCreating={isCreating}
+            />
+            <QuizSelectorList 
+              key={refreshKey}
+              accessToken={accessToken}
+              onCreateForm={async (quizData, selectedQuestions) => {
+                setIsCreating(true);
+                try {
+                  const result = await ApiClient.createForm(
+                    accessToken as string,
+                    quizData,
+                    selectedQuestions
+                  );
+                  setCreatedFormId(result.formId);
+                  setCreatedFormUrl(result.formUrl);
+                } catch (err: any) {
+                  setError(`Failed to complete form creation: ${err.message}`);
+                } finally {
+                  setIsCreating(false);
+                }
+              }}
+              isCreating={isCreating}
+              createdFormUrl={createdFormUrl}
+            />
             {error && <div className="error-message">{error}</div>}
-
-            {createdFormUrl && (
-              <div className="success-message">
-                <p>Form created successfully!</p>
-                <a
-                  href={createdFormUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="form-link"
-                >
-                  Open your form
-                </a>
-              </div>
-            )}
           </div>
 
           {/* <div className="form-modifier-section">

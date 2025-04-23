@@ -8,6 +8,13 @@
       "when": 1744869136700,
       "tag": "0000_oval_manta",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1745306682529,
+      "tag": "0001_tense_hellfire_club",
+      "breakpoints": true
     }
   ]
 }

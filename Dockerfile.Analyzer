@@ -1,0 +1,140 @@
+# Dockerfile-analyzer
+FROM node:18
+
+WORKDIR /app
+
+ARG DATABASE_URL
+ARG CORS_ORIGIN
+ARG REACT_APP_ANALYZER_API_BASE_URL
+
+ENV DATABASE_URL=$DATABASE_URL
+ENV CORS_ORIGIN=$CORS_ORIGIN
+ENV REACT_APP_ANALYZER_API_BASE_URL=$REACT_APP_ANALYZER_API_BASE_URL
+ENV DEBUG=drizzle:*
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+# Build the project
+RUN npm run clean
+RUN npm run build
+
+EXPOSE 3002
+
+# Create an entrypoint script
+COPY <<EOF /app/entrypoint.sh
+#!/bin/bash
+set -e
+
+# Print out important information for debugging
+echo "Current directory: \$(pwd)"
+echo "DATABASE_URL length: \${#DATABASE_URL}"
+echo "DATABASE_URL starts with: \$(echo \$DATABASE_URL | cut -c1-30)..."
+echo "Neon DB detected: \$(echo \$DATABASE_URL | grep -q 'neon.tech' && echo 'yes' || echo 'no')"
+echo "Drizzle config file exists: \$(test -f ./drizzle.config.ts && echo 'yes' || echo 'no')"
+echo "Schema file exists: \$(test -f ./database/schema.ts && echo 'yes' || echo 'no')"
+
+# Try to connect to the database using Node.js
+echo "Testing direct database connection..."
+node -e "
+const { neon } = require('@neondatabase/serverless');
+const databaseUrl = process.env.DATABASE_URL;
+async function testConnection() {
+  try {
+    const sql = neon(databaseUrl);
+    const result = await sql\\\`SELECT 1 as test\\\`;
+    console.log('Database connection successful:', result);
+  } catch (error) {
+    console.error('Error connecting to database:', error);
+    process.exit(1);
+  }
+}
+testConnection();
+"
+
+# Run database migrations with additional debug info
+if [ -f "./drizzle.config.ts" ]; then
+  echo "Found drizzle.config.ts, running migrations..."
+  
+  # Generate SQL
+  echo "Generating migration SQL..."
+  npx drizzle-kit generate
+  
+  # Check if migrations were generated
+  echo "Generated migrations:"
+  ls -la ./migrations
+  
+  # Push schema with full debugging
+  echo "Pushing schema to database..."
+  npx drizzle-kit push
+  
+  # Double-check with direct SQL
+  echo "Verifying tables with direct SQL..."
+  node -e "
+  const { neon } = require('@neondatabase/serverless');
+  const databaseUrl = process.env.DATABASE_URL;
+  async function checkTables() {
+    try {
+      const sql = neon(databaseUrl);
+      const tables = await sql\\\`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public'
+      \\\`;
+      console.log('Tables in database:', tables);
+      
+      // Try to create tables directly if they don't exist
+      if (!tables.some(t => t.table_name === 'quiz')) {
+        console.log('Creating quiz table directly...');
+        await sql\\\`
+          CREATE TABLE IF NOT EXISTS quiz (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            title TEXT NOT NULL,
+            description TEXT NOT NULL,
+            topic TEXT NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT NOW()
+          )
+        \\\`;
+        console.log('Quiz table created successfully');
+      }
+      
+      if (!tables.some(t => t.table_name === 'question')) {
+        console.log('Creating question table directly...');
+        await sql\\\`
+          CREATE TABLE IF NOT EXISTS question (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            quiz_id UUID REFERENCES quiz(id),
+            type TEXT NOT NULL,
+            title TEXT NOT NULL,
+            options TEXT[] DEFAULT '{}',
+            correct_answer TEXT,
+            correct_answers TEXT[] DEFAULT '{}',
+            is_multiple_select BOOLEAN DEFAULT false,
+            required BOOLEAN NOT NULL DEFAULT true,
+            points INTEGER NOT NULL
+          )
+        \\\`;
+        console.log('Question table created successfully');
+      }
+    } catch (error) {
+      console.error('Error checking/creating tables:', error);
+    }
+  }
+  checkTables();
+  "
+  
+  echo "Database schema setup complete!"
+else
+  echo "No drizzle.config.ts found, skipping migrations"
+fi
+
+# Start the analyzer service
+echo "Starting analyzer service with Neon DB connection..."
+node build/src/analyze.js
+EOF
+
+RUN chmod +x /app/entrypoint.sh
+
+CMD ["/app/entrypoint.sh"] 
