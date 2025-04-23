@@ -1,22 +1,5 @@
 version: "3"
 services:
-  postgres:
-    image: postgres:14
-    restart: always
-    environment:
-      POSTGRES_USER: capstone_starter
-      POSTGRES_PASSWORD: capstone_starter
-      POSTGRES_DB: capstone_starter
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U capstone_starter"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   server:
     build:
       context: .
@@ -30,10 +13,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://postgres:5432/capstone_starter?user=capstone_starter&password=capstone_starter
-    depends_on:
-      postgres:
-        condition: service_healthy
+      DATABASE_URL: ${DATABASE_URL}
 
   analyzer:
     build:
@@ -48,10 +28,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://postgres:5432/capstone_starter?user=capstone_starter&password=capstone_starter
-    depends_on:
-      postgres:
-        condition: service_healthy
+      DATABASE_URL: ${DATABASE_URL}
 
   frontend:
     build:
@@ -65,6 +42,3 @@ services:
       - "3000:80"
     env_file:
       - .env
-
-volumes:
-  postgres_data:
