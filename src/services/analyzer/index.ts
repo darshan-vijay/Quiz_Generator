@@ -3,6 +3,6 @@ import { createQuizRouter } from './route';
 
 export const configureAnalyzerService = (app: Express): Express => {
     // Mount quiz routes
-    app.use('/api/quiz', createQuizRouter());
+    app.use('/analyzer', createQuizRouter());
     return app;
 }; 
