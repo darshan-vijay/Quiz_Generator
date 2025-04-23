@@ -182,7 +182,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile-analyzer
+          file: Dockerfile.Analyzer
           push: true
           tags: davi1493/quiz-app-analyzer:${{ env.ANALYZER_VERSION }}
           build-args: |
