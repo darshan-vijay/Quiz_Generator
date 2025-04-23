@@ -87,6 +87,7 @@ export async function extractRelevantLinksFromHtml(
   });
 
   const content = response.choices[0].message.content || "[]";
+  console.log("open ai connection details",openai);
 
   try {
     const parsed = JSON.parse(content);
