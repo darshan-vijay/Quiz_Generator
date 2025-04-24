@@ -156,8 +156,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Google Form Creator</h1>
-        <p>Create forms using Google Forms API</p>
+        <h1>Quizzy</h1>
+        <p>An AI Powered Quiz Maker</p>
 
         {/* <button onClick={() => handleDbResults()}>get DB data</button> */}
       </header>
@@ -165,7 +165,7 @@ function App() {
       <main className="App-main">
         <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID as string}>
           <div className="auth-section">
-            <h2>Step 1: Sign in with Google</h2>
+            <h2>Sign in with Google</h2>
             {!accessToken ? (
               <LoginButton
                 onLoginSuccess={handleAccessTokenSuccess}
