@@ -5,19 +5,19 @@ import { AppServer } from "./webSupport/appServer";
 // Load environment variables
 dotenv.config();
 
-async function startGoogleFormsApi() {
+async function startServer() {
   try {
-    const googleFormsServer = new AppServer();
-    googleFormsServer.configureGoogleFormsApi();
-    await googleFormsServer.start(3001);
-    console.log('Google Form API routes registered');
+    const server = new AppServer();
+    server.configureGoogleFormsApi(); // This now includes collector routes
+    await server.start(3001);
     console.log('Server running on port 3001');
     console.log('Google Forms API available at http://localhost:3001/api/google-forms');
+    console.log('Collector API available at http://localhost:3001/api/google-forms/collector');
   } catch (error) {
-    console.error('Error starting Google Forms API server:', error);
+    console.error('Error starting server:', error);
     process.exit(1);
   }
 }
 
-// Start the Google Forms API server
-startGoogleFormsApi();
+// Start the server
+startServer();

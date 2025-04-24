@@ -25,6 +25,7 @@ export class AppServer {
 
   public configureGoogleFormsApi(): void {
     configureGoogleFormApi(this.app);
+    // This now includes collector routes under /api/google-forms/collector
   }
 
   public async start(port: number): Promise<void> {

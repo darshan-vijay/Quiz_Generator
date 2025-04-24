@@ -4,6 +4,7 @@ import {
   QuizQuestion,
   ExistingQuestion,
   FormCreationResponse,
+  CollectorEntry,
 } from "./googleFormServiceModels";
 
 // Use environment variable for API base URL
@@ -225,5 +226,24 @@ export class ApiClient {
     }
 
     return response.json();
+  }
+
+  /**
+   * Fetch topics from the collector API
+   */
+  static async getCollectorTopics(): Promise<CollectorEntry[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/collector`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch topics: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching collector topics:', error);
+      return [];
+    }
   }
 }

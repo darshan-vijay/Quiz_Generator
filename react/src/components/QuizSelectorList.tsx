@@ -138,6 +138,10 @@ const QuizSelectorList: React.FC<QuizSelectorListProps> = ({
     return date.toLocaleString();
   };
 
+  const calculateTotalPoints = (questions: QuizQuestion[]): number => {
+    return questions.reduce((total, question) => total + question.points, 0);
+  };
+
   if (loading) {
     return <div className="quiz-selector-loading">Loading quizzes...</div>;
   }
@@ -162,7 +166,13 @@ const QuizSelectorList: React.FC<QuizSelectorListProps> = ({
             >
               <h3>{quiz.title}</h3>
               <div className="quiz-info-brief">
-                <span className="quiz-topic">{quiz.topic}</span>
+                <span className="quiz-stats">
+                  {loadingQuiz && expandedQuizId === quiz.id 
+                    ? "Loading..." 
+                    : selectedQuiz && expandedQuizId === quiz.id 
+                      ? `${selectedQuiz.questions.length} questions • ${calculateTotalPoints(selectedQuiz.questions)} points` 
+                      : "Click to view details"}
+                </span>
                 <span className="quiz-date">Created: {formatDate(quiz.createdAt)}</span>
               </div>
               <div className="quiz-expand-icon">
