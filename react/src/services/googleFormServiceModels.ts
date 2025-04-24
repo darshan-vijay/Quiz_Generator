@@ -31,3 +31,10 @@ export interface QuizQuestion {
       correctAnswers?: string[];
       isMultiSelect?: boolean;
     }
+
+  export interface CollectorEntry {
+    id: string;
+    title: string;
+    category: string;
+    content: string;
+  }

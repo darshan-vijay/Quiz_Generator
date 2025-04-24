@@ -64,12 +64,23 @@
   margin-right: 30px;
 }
 
-.quiz-topic {
+.quiz-stats {
   font-size: 0.85rem;
   color: #4a4a4a;
-  background-color: #eaeaea;
-  padding: 3px 8px;
+  background-color: #f0f0f0;
+  padding: 4px 10px;
   border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 150px;
+  white-space: nowrap;
+}
+
+.quiz-stats::before {
+  content: "📊";
+  font-size: 0.9rem;
+  margin-right: 3px;
 }
 
 .quiz-date {
