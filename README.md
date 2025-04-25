@@ -12,7 +12,7 @@ Our project scrapes and collects documents from the web to generate quizzes on d
 
 ## Cloud Architecture
 
-<img src="src/public/images/cloud-architecture.png" width="250">
+<img src="src/public/images/Cloud_Architecture.png" width="250">
 
 ## Technology stack
 
@@ -22,7 +22,7 @@ The frontend UI is written in [React](https://react.dev/).
 It stores data in [PostgreSQL](https://www.postgresql.org/), and a [GitHub Action](https://github.com/features/actions)
 runs tests.
 
-## Architecture
+## Componenent Explanation
 
 The application consists of three main components communicating through a PostgreSQL database:
 
@@ -40,13 +40,12 @@ The central component that handles user interactions. It allows users to request
 
 All components communicate through the SQL database, where raw data, quiz requests, and generated quizzes are stored.
 
-## Deployment Method
+## CI/CD Explanation
+
+
+<img src="src/public/images/CICD_pipeline.png" width="250">
 
 The application is currently deployed on Cloud Run using a container image stored in Google Artifact Registry. The deployment process begins with authentication via the Google Cloud CLI, followed by building and pushing the Docker image of the main application to the designated Artifact Registry repository. This image is then used to deploy the service on Cloud Run. All related commands and steps are documented in the `Deployment Commands` file within the project repository.
-
-## Major Design Changes
-
-The current deployment process uses Google Cloud Run to host a Dockerized application, with the image built locally, pushed to Google Artifact Registry, and then deployed as a publicly accessible service. However, major architectural changes are planned: the deployment will soon transition to Google Kubernetes Engine (GKE), where individual containers for the collector, analyzer, and the main web application will be orchestrated. This new deployment pipeline will be automated using GitHub Actions, enabling continuous integration and delivery for the entire system.
 
 ## Team Coordination Process
 
