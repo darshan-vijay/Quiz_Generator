@@ -14,8 +14,36 @@ export function loadJSON<T>(filePath: string, defaultValue: T): T {
   }
 }
 
+export function normalizeUrl(url: string): string {
+  try {
+    const parsed = new URL(url.trim());
+
+    // return parsed.pathname
+    return parsed.origin + parsed.pathname;
+  } catch {
+    return url;
+  }
+}
+
+export function linkToWikipedia(url: string): boolean {
+  return /^\/wiki\/(?!File:|Help:|Category:)/.test(url);
+}
+
 export function saveJSON(filePath: string, data: any) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+export function isValidText(text: string): boolean {
+  if (!text) return false;
+
+  const lcase = text.toLowerCase();
+  return !(
+    lcase.includes('login') ||
+    lcase.includes('sign up') ||
+    lcase.includes('mobile version') ||
+    lcase.includes('desktop version')
+    // lcase.includes('browser version')
+  );
 }
 
 export async function isPDFLink(url: string): Promise<boolean> {
