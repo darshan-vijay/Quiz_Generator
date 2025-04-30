@@ -20,8 +20,44 @@ env:
   COLLECTOR_DATABASE_URL: ${{ secrets.COLLECTOR_DATABASE_URL}}
 
 jobs:
+  run-all-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+          cache: npm
+
+      # - name: Install backend dependencies and run tests
+      #   run: |
+      #     cd server
+      #     npm ci
+      #     npm test
+
+      # - name: Install frontend dependencies and run tests
+      #   run: |
+      #     cd react
+      #     npm ci
+      #     npm test
+
+      - name: Install analyzer dependencies and run tests
+        run: |
+          npm ci
+          npm test
+
+      - name: Install collector dependencies and run tests
+        run: |
+          cd collector
+          npm ci
+          npm test
+
   build-backend:
     runs-on: ubuntu-latest
+    needs: run-all-tests
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -158,7 +194,6 @@ jobs:
   build-analyzer:
     runs-on: ubuntu-latest
     needs:
-      - build-backend
       - build-frontend
     steps:
       - name: Checkout Code
