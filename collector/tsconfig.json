@@ -8,5 +8,6 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "strict": true
-  }
+  },
+  "exclude": ["vitest.config.ts"]
 }
