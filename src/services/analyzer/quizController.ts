@@ -21,7 +21,15 @@ export class QuizController {
                     success: false,
                     error: 'Topic is required' 
                 });
-                return; // Added return to prevent further execution
+                return;
+            }
+
+            if (!apiKey) {
+                res.status(400).json({ 
+                    success: false,
+                    error: 'API Key is required' 
+                });
+                return;
             }
 
             const count = questionCount || 5;
@@ -55,8 +63,12 @@ export class QuizController {
                 const totalSpecified = Object.values(questionCounts)
                     .reduce((sum, count) => sum + (count || 0), 0);
 
-                if (totalSpecified != count) {
-                   console.warn(`Total specified question counts (${totalSpecified}) does not match the total requested (${count}). Adjusting counts to match the total.`);
+                if (totalSpecified > count) {
+                    res.status(400).json({
+                        success: false,
+                        error: `Total specified question counts (${totalSpecified}) exceeds the total requested (${count})`
+                    });
+                    return;
                 }
             }
 
