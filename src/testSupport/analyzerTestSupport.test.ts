@@ -1,7 +1,8 @@
 import { QuizController } from '../services/analyzer/quizController';
 import { Request, Response } from 'express';
 import { QuizRepository } from '../services/analyzer/quizRepository';
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { LLMService } from '../services/analyzer/llmService';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 
 // Mock data
 const mockQuizId = 'test-quiz-id';
@@ -37,6 +38,7 @@ const mockResponse = (): Response => {
 describe('QuizController', () => {
     let quizController: QuizController;
     let mockQuizRepository: QuizRepository;
+    let mockLLMService: LLMService;
 
     beforeAll(async () => {
         mockQuizRepository = {
@@ -55,11 +57,17 @@ describe('QuizController', () => {
             }])
         } as unknown as QuizRepository;
 
-        quizController = new QuizController();
-        (quizController as any).quizRepository = mockQuizRepository;
-        (quizController as any).llmService = {
+        mockLLMService = {
             generateQuiz: vi.fn().mockResolvedValue(mockQuiz)
-        };
+        } as unknown as LLMService;
+
+        quizController = new QuizController();
+        (quizController as any).llmService = mockLLMService;
+        (quizController as any).quizRepository = mockQuizRepository;
+    });
+
+    beforeEach(() => {
+        vi.clearAllMocks();
     });
 
     afterAll(async () => {
@@ -99,6 +107,43 @@ describe('QuizController', () => {
             expect(res.json).toHaveBeenCalledWith({
                 success: false,
                 error: 'Topic is required'
+            });
+            expect(mockQuizRepository.saveQuiz).not.toHaveBeenCalled();
+        });
+
+        it('should return error when API key is missing', async () => {
+            const req = mockRequest({
+                topic: 'Test Topic',
+                questionCount: 5
+            });
+            const res = mockResponse();
+
+            await quizController.generateQuiz(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                error: 'API Key is required'
+            });
+            expect(mockQuizRepository.saveQuiz).not.toHaveBeenCalled();
+        });
+
+        it('should return error when question counts exceed total', async () => {
+            const req = mockRequest({
+                topic: 'Test Topic',
+                questionCount: 5,
+                apiKey: 'test-api-key',
+                multipleChoice: 3,
+                multipleSelect: 3
+            });
+            const res = mockResponse();
+
+            await quizController.generateQuiz(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                error: 'Total specified question counts (6) exceeds the total requested (5)'
             });
             expect(mockQuizRepository.saveQuiz).not.toHaveBeenCalled();
         });
