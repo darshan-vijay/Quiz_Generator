@@ -6,15 +6,35 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Create Express router
-const router = Router();
-
 // Initialize services
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
-let authService = getAuthService();
+// Service instances
+let _authService: GoogleAuthService | null = null;
+let _formsService: GoogleFormsService | null = null;
 
-function getAuthService(): GoogleAuthService {
+// Service getters
+export const getAuthService = (): GoogleAuthService => {
+  if (!_authService) {
+    _authService = createAuthService();
+  }
+  return _authService;
+};
+
+export const getFormsService = (): GoogleFormsService => {
+  if (!_formsService) {
+    _formsService = new GoogleFormsService();
+  }
+  return _formsService;
+};
+
+// For testing
+export const setServices = (auth: GoogleAuthService, forms: GoogleFormsService) => {
+  _authService = auth;
+  _formsService = forms;
+};
+
+function createAuthService(): GoogleAuthService {
   if (GOOGLE_CLIENT_ID) {
     return new GoogleAuthService({
       clientId: GOOGLE_CLIENT_ID,
@@ -61,28 +81,34 @@ function getAuthService(): GoogleAuthService {
   } as unknown as GoogleAuthService;
 }
 
-
-const formsService = new GoogleFormsService();
-
 // Middleware to validate token
-const validateToken = (req: Request, res: Response, next: NextFunction): void => {
-  const token = req.headers.authorization?.split(' ')[1];
+export const validateToken = (req: Request, res: Response, next: NextFunction): void => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    res.status(401).json({ error: 'No authorization token provided' });
+    return;
+  }
+
+  const token = authHeader.split(' ')[1];
   if (!token) {
     res.status(401).json({ error: 'No authorization token provided' });
     return;
   }
+
   // Attach token to request for use in route handlers
   (req as any).token = token;
   next();
 };
 
-// API endpoints
-
-// Get user info
-router.get('/user-info', validateToken, async (req: Request, res: Response): Promise<void> => {
+// Route handlers
+export const getUserInfo = async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
-    const userInfo = await authService.fetchUserInfo(token);
+    if (!token) {
+      res.status(401).json({ error: 'No authorization token provided' });
+      return;
+    }
+    const userInfo = await getAuthService().fetchUserInfo(token);
     if (!userInfo) {
       res.status(401).json({ error: 'Failed to fetch user information' });
       return;
@@ -91,10 +117,9 @@ router.get('/user-info', validateToken, async (req: Request, res: Response): Pro
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
-});
+};
 
-// Create a form
-router.post('/forms', validateToken, async (req: Request, res: Response): Promise<void> => {
+export const createForm = async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
     const { quizData, selectedQuestions } = req.body;
@@ -114,7 +139,7 @@ router.post('/forms', validateToken, async (req: Request, res: Response): Promis
       console.log(message);
     };
 
-    const result = await formsService.createForm(
+    const result = await getFormsService().createForm(
       token,
       quizData as QuizData,
       questionsSet as Set<number>,
@@ -128,10 +153,9 @@ router.post('/forms', validateToken, async (req: Request, res: Response): Promis
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
-});
+};
 
-// Fetch existing questions
-router.get('/forms/:formId/questions', validateToken, async (req: Request, res: Response): Promise<void> => {
+export const fetchQuestions = async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
     const { formId } = req.params;
@@ -141,15 +165,14 @@ router.get('/forms/:formId/questions', validateToken, async (req: Request, res: 
       return;
     }
 
-    const questions = await formsService.fetchQuestions(token, formId);
+    const questions = await getFormsService().fetchQuestions(token, formId);
     res.json(questions);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
-});
+};
 
-// Update a question
-router.put('/forms/:formId/questions/:questionId', validateToken, async (req: Request, res: Response): Promise<void> => {
+export const updateQuestion = async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
     const { formId, questionId } = req.params;
@@ -160,7 +183,7 @@ router.put('/forms/:formId/questions/:questionId', validateToken, async (req: Re
       return;
     }
 
-    await formsService.updateQuestion(
+    await getFormsService().updateQuestion(
       token,
       formId,
       questionId,
@@ -172,10 +195,9 @@ router.put('/forms/:formId/questions/:questionId', validateToken, async (req: Re
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
-});
+};
 
-// Add a new question
-router.post('/forms/:formId/questions', validateToken, async (req: Request, res: Response): Promise<void> => {
+export const addQuestion = async (req: Request, res: Response): Promise<void> => {
   try {
     const token = (req as any).token;
     const { formId } = req.params;
@@ -193,7 +215,7 @@ router.post('/forms/:formId/questions', validateToken, async (req: Request, res:
       console.log(message);
     };
 
-    await formsService.addQuestion(
+    await getFormsService().addQuestion(
       token,
       formId,
       questionData,
@@ -207,6 +229,16 @@ router.post('/forms/:formId/questions', validateToken, async (req: Request, res:
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
-});
+};
+
+// Create Express router
+const router = Router();
+
+// API endpoints
+router.get('/user-info', validateToken, getUserInfo);
+router.post('/forms', validateToken, createForm);
+router.get('/forms/:formId/questions', validateToken, fetchQuestions);
+router.put('/forms/:formId/questions/:questionId', validateToken, updateQuestion);
+router.post('/forms/:formId/questions', validateToken, addQuestion);
 
 export const googleFormApiRoutes = router; 

@@ -65,7 +65,9 @@ We implemented both automatic and user acceptance testing. Automatic testing is 
 
 [Collector Test Support](collector/src/collectorTestSupport.test.ts)
 
-These can be executed by running `npm test` once in **both the main directory and the collector subdirectory** (which has it's own package.json file). Note that for some of these tests, the developer must first spin up the database and set the GOOGLE_CLIENT_ID field in process.env.
+[Server Test Support](src/testSupport/apiRoutesTestSupport.test.ts)
+
+These can be executed by running `npm test` once in **both the main directory and the collector subdirectory** (which has it's own package.json file).
 
 Transcripts of both of our user acceptance tests can be found in this file:
 
