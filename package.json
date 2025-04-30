@@ -14,7 +14,8 @@
     "build:backend": "npm run clean && npm run build",
     "clean": "rm -rf ./build",
     "watch": "nodemon src/app.ts",
-    "test": "tsc --noEmit && vitest run",
+    "test": "tsc --noEmit && vitest run --config vitest.config.ts",
+    "test:collector": "cd collector && npm test",
     "dev:server": "nodemon --watch 'src/**/*.ts' --watch 'database/**/*.ts' --exec 'ts-node --transpile-only -r tsconfig-paths/register' src/app.ts",
     "dev:analyzer": "nodemon --watch 'src/**/*.ts' --watch 'database/**/*.ts' --exec 'ts-node --transpile-only -r tsconfig-paths/register' src/analyze.ts",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:analyzer\" \"npm run dev:frontend\""

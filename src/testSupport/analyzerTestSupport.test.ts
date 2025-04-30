@@ -1,9 +1,27 @@
 import { QuizController } from '../services/analyzer/quizController';
 import { Request, Response } from 'express';
-import { testDbTemplate, TestDatabaseTemplate } from './databaseTestSupport';
 import { QuizRepository } from '../services/analyzer/quizRepository';
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 
+// Mock data
+const mockQuizId = 'test-quiz-id';
+const mockQuiz = {
+    quizTitle: 'Test Quiz',
+    description: 'A test quiz about testing',
+    questions: [
+        {
+            type: 'multiple_choice',
+            title: 'Test Question 1',
+            required: true,
+            options: ['A', 'B', 'C', 'D'],
+            correctAnswer: 'A',
+            points: 1,
+            isMultiSelect: false
+        }
+    ]
+};
+
+// Mock request/response helpers
 const mockRequest = (body: any = {}, params: any = {}): Request => ({
     body,
     params,
@@ -18,65 +36,60 @@ const mockResponse = (): Response => {
 
 describe('QuizController', () => {
     let quizController: QuizController;
-    let testDb: TestDatabaseTemplate;
-    let quizRepository: QuizRepository;
+    let mockQuizRepository: QuizRepository;
 
     beforeAll(async () => {
-        testDb = await testDbTemplate('quiz_controller_test');
-        quizRepository = new QuizRepository();
+        mockQuizRepository = {
+            saveQuiz: vi.fn().mockResolvedValue(mockQuizId),
+            getQuizById: vi.fn().mockImplementation((id: string) => {
+                return id === mockQuizId 
+                    ? Promise.resolve(mockQuiz)
+                    : Promise.resolve(null);
+            }),
+            getAllQuizzes: vi.fn().mockResolvedValue([{
+                id: mockQuizId,
+                title: mockQuiz.quizTitle,
+                description: mockQuiz.description,
+                topic: 'Test Topic',
+                createdAt: new Date()
+            }])
+        } as unknown as QuizRepository;
+
         quizController = new QuizController();
+        (quizController as any).quizRepository = mockQuizRepository;
+        (quizController as any).llmService = {
+            generateQuiz: vi.fn().mockResolvedValue(mockQuiz)
+        };
     });
 
     afterAll(async () => {
-        await testDb.clear();
+        vi.clearAllMocks();
     });
 
     describe('generateQuiz', () => {
         it('should generate a quiz with default parameters', async () => {
             const req = mockRequest({
                 topic: 'Test Topic',
-                questionCount: 5
-            });
-            const res = mockResponse();
-
-            await quizController.generateQuiz(req, res);
-
-            expect(res.status).not.toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    success: true,
-                    quiz: expect.any(Object),
-                    quizId: expect.any(String)
-                })
-            );
-        });
-
-        it('should generate a quiz with specific question types', async () => {
-            const req = mockRequest({
-                topic: 'Test Topic',
                 questionCount: 5,
-                multipleChoice: 2,
-                multipleSelect: 1,
-                shortAnswer: 1,
-                paragraph: 1
+                apiKey: 'test-api-key'
             });
             const res = mockResponse();
 
             await quizController.generateQuiz(req, res);
 
             expect(res.status).not.toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    success: true,
-                    quiz: expect.any(Object),
-                    quizId: expect.any(String)
-                })
-            );
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                quiz: mockQuiz,
+                quizId: mockQuizId
+            });
+            expect(mockQuizRepository.saveQuiz).toHaveBeenCalledWith(mockQuiz, 'Test Topic');
         });
 
         it('should return error when topic is missing', async () => {
             const req = mockRequest({
-                questionCount: 5
+                questionCount: 5,
+                apiKey: 'test-api-key'
             });
             const res = mockResponse();
 
@@ -87,33 +100,56 @@ describe('QuizController', () => {
                 success: false,
                 error: 'Topic is required'
             });
+            expect(mockQuizRepository.saveQuiz).not.toHaveBeenCalled();
+        });
+
+        it('should handle specific question type counts', async () => {
+            const req = mockRequest({
+                topic: 'Test Topic',
+                questionCount: 5,
+                apiKey: 'test-api-key',
+                multipleChoice: 2,
+                multipleSelect: 1,
+                shortAnswer: 1,
+                paragraph: 1
+            });
+            const res = mockResponse();
+
+            await quizController.generateQuiz(req, res);
+
+            expect(res.status).not.toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                quiz: mockQuiz,
+                quizId: mockQuizId
+            });
+            expect((quizController as any).llmService.generateQuiz).toHaveBeenCalledWith(
+                'Test Topic',
+                5,
+                'test-api-key',
+                {
+                    multipleChoice: 2,
+                    multipleSelect: 1,
+                    shortAnswer: 1,
+                    paragraph: 1
+                }
+            );
         });
     });
 
     describe('getQuiz', () => {
         it('should retrieve a quiz by ID', async () => {
-            // First create a quiz to retrieve
-            const createReq = mockRequest({
-                topic: 'Test Topic for Get',
-                questionCount: 2
-            });
-            const createRes = mockResponse();
-            await quizController.generateQuiz(createReq, createRes);
-
-            const quizId = (createRes.json as any).mock.calls[0][0].quizId;
-
-            const req = mockRequest({}, { id: quizId });
+            const req = mockRequest({}, { id: mockQuizId });
             const res = mockResponse();
 
             await quizController.getQuiz(req, res);
 
             expect(res.status).not.toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    success: true,
-                    quiz: expect.any(Object)
-                })
-            );
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                quiz: mockQuiz
+            });
+            expect(mockQuizRepository.getQuizById).toHaveBeenCalledWith(mockQuizId);
         });
 
         it('should return error when quiz ID is missing', async () => {
@@ -127,6 +163,7 @@ describe('QuizController', () => {
                 success: false,
                 error: 'Quiz ID is required'
             });
+            expect(mockQuizRepository.getQuizById).not.toHaveBeenCalled();
         });
 
         it('should return error when quiz is not found', async () => {
@@ -140,37 +177,28 @@ describe('QuizController', () => {
                 success: false,
                 error: 'Quiz not found'
             });
+            expect(mockQuizRepository.getQuizById).toHaveBeenCalledWith('non-existent-id');
         });
     });
 
     describe('getAllQuizzes', () => {
         it('should retrieve all quizzes', async () => {
-            // Create a few quizzes first
-            for (let i = 0; i < 3; i++) {
-                const req = mockRequest({
-                    topic: `Test Topic ${i}`,
-                    questionCount: 2
-                });
-                const res = mockResponse();
-                await quizController.generateQuiz(req, res);
-            }
-
             const req = mockRequest();
             const res = mockResponse();
 
             await quizController.getAllQuizzes(req, res);
 
-            expect(res.json).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    success: true,
-                    quizzes: expect.arrayContaining([
-                        expect.objectContaining({
-                            topic: expect.any(String),
-                            questions: expect.any(Array)
-                        })
-                    ])
-                })
-            );
+            expect(res.json).toHaveBeenCalledWith({
+                success: true,
+                quizzes: [{
+                    id: mockQuizId,
+                    title: mockQuiz.quizTitle,
+                    description: mockQuiz.description,
+                    topic: 'Test Topic',
+                    createdAt: expect.any(Date)
+                }]
+            });
+            expect(mockQuizRepository.getAllQuizzes).toHaveBeenCalled();
         });
     });
 });

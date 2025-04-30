@@ -1,23 +1,36 @@
 import {afterEach, beforeEach, describe, expect, test} from "vitest";
-import {appServer, AppServer} from "./appServer";
+import {AppServer} from "./appServer";
+import { Server } from 'http';
 
 describe("appServer", () => {
     let server: AppServer;
+    let httpServer: Server;
+    let port: number;
 
     beforeEach(async () => {
-        server = await appServer.start(0, app => {
-            app.get("/", (req, res) => {
-                res.send("This is a test");
+        server = new AppServer();
+        // Configure test route
+        server.getApp().get("/", (req, res) => {
+            res.send("This is a test");
+        });
+        
+        // Start server on a random port
+        await new Promise<void>((resolve) => {
+            httpServer = server.getApp().listen(0, "0.0.0.0", () => {
+                port = (httpServer.address() as any).port;
+                resolve();
             });
         });
     });
 
     afterEach(() => {
-        server.stop();
+        if (httpServer) {
+            httpServer.close();
+        }
     });
 
     test("server starts", async () => {
-        const response = await fetch(`${server.address}/`);
+        const response = await fetch(`http://localhost:${port}/`);
 
         expect(response.status).toEqual(200);
         expect(await response.text()).toEqual("This is a test");
