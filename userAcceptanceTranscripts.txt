@@ -1,0 +1,44 @@
+User Acceptance Tests
+
+
+Bryan Bailey
+It took Bryan 5 minutes and 46 seconds to create a quiz.
+
+Notable interactions and comments:
+- Bryan was very curious and confused about the API Key field
+- Bryan was unable to figure out the API Key field
+- Bryan took a long time to set and create the number of questions, though he was not confused
+- Bryan needed to be told how to import the quiz to google forms
+- Byran commented on the unintuitive nature of the UI. He said it seemed like it was designed for developers, not any other person who would use the app
+- Bryan commented that the fact the UI was designed for developers was not an issue, and was only a problem since he was not a developer
+
+
+Tanya Bailey
+It took Tanya 3 minutes and 2 seconds to create a quiz.
+
+Notable interactions and comments:
+- When Tanya was unable to do something, she would ask for help instead of attempting to learn the UI. She refused to proceed unless assistance was given
+- Tanya did not find the sign in with google button. She needed to be told
+- Tanya did not find the menu to open the form parameters. She needed to be told
+- Tanya did not find the API key field. She needed to be told and had it entered for her
+- Tanya was able to enter the other quiz parameters
+- Tanya needed to be told how to import the quiz to google forms
+
+
+Patrick Bailey
+It took Patrick 17 minutes and 20 seconds to create a quiz.
+
+Notable interaction and comments:
+- Patrick is a developer with extensive technical knowledge.
+- Patrick immediately found the input for the API key. He then spent quite a while trying to find his API key before going through the entire process of creating a new account
+- Patrick was able to quickly enter all other fields, except the sign-in with google, which he needed to be told
+- Patrick also needed to be told how to find the quiz in the recent quizzes
+
+
+Things to change in future work:
+- Auth should be done through google to prevent users from needing to find the "sign in with google" button
+- The LLM API key should be provided by Quizy
+- The recent quizzes should be replaced by a loading screen then move to a new page
+- The settings should not be in a dropdown
+
+With these changes, the Quizy UI would be much more acceptable for users.
