@@ -55,6 +55,22 @@ Regarding our coordination process, we mainly kept ourselves updated with weekly
 
 We divided tasks based on each team member's strengths and interests. Raihan focused on the app flow, refining the idea, and integrating the Google Forms API. Myself and Darshan handled cloud architecture, CI/CD, and deployment to GCP. Nikhil worked on authentication and frontend development, while Onkar and Vinay were responsible for scraping websites, parsing, and storing the data. This clear division of work allowed us to work efficiently in parallel.
 
+## Testing
+
+We implemented both automatic and user acceptance testing. Automatic testing is done through the following files:
+
+[Database Test Support](src/testSupport/databaseTestSupport.ts)
+
+[Analyzer Test Support](src/testSupport/analyzerTestSupport.test.ts)
+
+[Collector Test Support](collector/src/collectorTestSupport.test.ts)
+
+These can be executed by running `npm test` once in **both the main directory and the collector subdirectory** (which has it's own package.json file). Note that for some of these tests, the developer must first spin up the database and set the GOOGLE_CLIENT_ID field in process.env.
+
+Transcripts of both of our user acceptance tests can be found in this file:
+
+[User Acceptance Transcripts](userAcceptanceTranscripts.txt)
+
 ## Local development
 
 1.  Install [node](https://formulae.brew.sh/formula/node) and [PostgreSQL 17](https://formulae.brew.sh/formula/postgresql@17).
