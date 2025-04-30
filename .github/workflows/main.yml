@@ -46,13 +46,15 @@ jobs:
 
       - name: Install analyzer dependencies and run tests
         run: |
-          npm ci
+          rm -rf node_modules package-lock.json
+          npm install
           npm test
 
       - name: Install collector dependencies and run tests
         run: |
           cd collector
-          npm ci
+          rm -rf node_modules package-lock.json
+          npm install
           npm test
 
   build-backend:
