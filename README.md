@@ -170,7 +170,7 @@ The React app will be available at http://localhost:3000 and will automatically 
 
 # Built on: Capstone Starter
 
-## Quick Start Guide
+## Quick Start Steps
 
 ### Installation
 
