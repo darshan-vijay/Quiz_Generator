@@ -83,8 +83,6 @@ We divided tasks based on each team member's strengths and interests. Raihan foc
 
 We implemented both automatic and user acceptance testing. Automatic testing is done through the following files:
 
-[Database Test Support](src/testSupport/databaseTestSupport.ts)
-
 [Analyzer Test Support](src/testSupport/analyzerTestSupport.test.ts)
 
 [Collector Test Support](collector/src/collectorTestSupport.test.ts)
