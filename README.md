@@ -6,6 +6,8 @@ Mohammed Raihan Ullah, Nikhil Bailey, Vinay Rajesh, Darshan Vijayaraghavan, Onka
 
 Our project scrapes and collects documents from the web to generate quizzes on demand. The application leverages the capabilities of LLMs to create quiz questions based on the scraped data and user prompts. It then uses the Google Forms API to publish the generated quizzes on Google Forms.
 
+Application code is in the current repository and the Infrastructure code continuous deployment was moved as per discussion in this repo https://github.com/coloradocollective/team-typo-manifests
+
 ## Architecture Overview
 
 ![Architecture Diagram](src/public/images/architecture.jpg)
@@ -14,13 +16,36 @@ Our project scrapes and collects documents from the web to generate quizzes on d
 
 <img src="src/public/images/Cloud_Architecture.png" width="250">
 
+This project is deployed on a Google Kubernetes Engine (GKE) cluster, which is provisioned and managed using Terraform. The infrastructure setup includes the following components:
+
+### Ingress and DNS
+
+We use the NGINX Ingress Controller within the GKE cluster to:
+
+- Handle external HTTP(S) traffic.
+- Enable path-based routing to different services such as `/api`, `/frontend`, and `/analyze`.
+- Integrate with Cloud DNS using Ingress annotations, providing readable and managed domain names.
+
+### TLS Certificate Management
+
+To support secure communication, particularly with external services like the Google Forms API, a TLS certificate is maintained within the cluster:
+
+- TLS certificates are issued and renewed using cert-manager and a ClusterIssuer.
+- The NGINX Ingress resource is configured to terminate HTTPS traffic using these certificates.
+
+### GitOps with ArgoCD
+
+ArgoCD is deployed as an agent inside the GKE cluster to manage application state via GitOps:
+
+- It continuously monitors a Git repository (e.g., GitLab) that contains Kubernetes manifests.
+- ArgoCD automatically syncs the desired configuration from Git to the live cluster.
+- This ensures reproducible, version-controlled, and automated deployments across environments.
+
 ## Technology stack
 
-This codebase is written [Typescript](https://www.typescriptlang.org/) and uses [Express](https://expressjs.com/)
-and [Mustache Templates](https://mustache.github.io/).
+This codebase is written [Typescript](https://www.typescriptlang.org/) and uses [Express](https://expressjs.com/).
 The frontend UI is written in [React](https://react.dev/).
-It stores data in [PostgreSQL](https://www.postgresql.org/), and a [GitHub Action](https://github.com/features/actions)
-runs tests.
+It stores data in [PostgreSQL](https://www.postgresql.org/), [GitHub Action](https://github.com/features/actions) for continuous integration and ArgoCD for continuous deployment.
 
 ## Componenent Explanation
 
@@ -41,7 +66,6 @@ The central component that handles user interactions. It allows users to request
 All components communicate through the SQL database, where raw data, quiz requests, and generated quizzes are stored.
 
 ## CI/CD Explanation
-
 
 <img src="src/public/images/CICD_pipeline.png" width="250">
 
@@ -73,184 +97,57 @@ Transcripts of both of our user acceptance tests can be found in this file:
 
 [User Acceptance Transcripts](userAcceptanceTranscripts.txt)
 
-## Local development
+### Running the Application for Local Development
 
-1.  Install [node](https://formulae.brew.sh/formula/node) and [PostgreSQL 17](https://formulae.brew.sh/formula/postgresql@17).
+This guide will walk you through setting up the Capstone Starter project using Docker Compose.
 
-    ```shell
-    brew install node postgresql@17
-    brew services run postgresql@17
-    ```
+---
 
-1.  Set up environment variables.
-
-    ```shell
-    cp .env.example .env
-    source .env
-    ```
-
-1.  Set up the database.
-
-    ```shell
-    psql postgres < databases/create_databases.sql
-    npm run migrate
-    DATABASE_URL="postgresql://localhost:5432/capstone_starter_test?user=capstone_starter&password=capstone_starter" npm run migrate
-    ```
-
-1.  Run tests.
-
-    ```shell
-    npm run test
-    ```
-
-1.  Run the collector and the analyzer to populate the database, then run the app and navigate to
-    [localhost:8787](http://localhost:8787).
-    ```shell
-    npm run collect
-    npm run analyze
-    npm run start
-    ```
-
-## Create a database schema migration
-
-Use knex to create a database schema migration.
-
-```shell
-npx knex migrate:make "[Description of change]" --knexfile databases/knexfile.js
-```
-
-## Build container
-
-1.  Build container
-
-    ```shell
-    npm run build
-    docker build -t capstone-starter .
-    ```
-
-1.  Run with docker
-    ```shell
-    docker run --env-file .env.docker --entrypoint ./collect.sh capstone-starter
-    docker run --env-file .env.docker --entrypoint ./analyze.sh capstone-starter
-    docker run -p 8787:8787 --env-file .env.docker capstone-starter
-    ```
-
-## Running the Application
-
-### API Server
-
-To run the backend API server:
+## 1. Clone the Repository
 
 ```bash
-# Clean and build the project
-npm run clean && npm run build
-
-# Start the API server
-npm run start
+git clone <your-repo-url>
+cd <your-project-folder>
 ```
 
-The API server will run on http://localhost:8080
+---
 
-### React Frontend
+## 2. Set Up Environment Variables
 
-To run the React frontend development server:
+Copy the example `.env` file and update any necessary credentials.
 
 ```bash
-# Navigate to the React app directory
-cd src/views/react
+cp .env.example .env
+```
 
-# Install dependencies (first time only)
+---
+
+## 3. Install Node.js Dependencies & Run Tests
+
+Do this for each application server, analyzer and frontend
+
+```bash
 npm install
-
-# Start the development server
-npm start
 ```
 
-The React app will be available at http://localhost:3000 and will automatically proxy API requests to the backend server.
+---
 
-# Built on: Capstone Starter
+## 4. Start All Containers with Docker Compose
 
-## Quick Start Steps
-
-### Installation
-
-To install all required dependencies for both backend and frontend:
+Build and start all services (frontend, server, analyzer):
 
 ```bash
-# Install all dependencies both backend and frontend
-npm run install:all
-```
-
-### Running the Application
-
-#### Development Mode (Recommended)
-
-To run both the backend server and frontend in development mode with hot reloading:
-
-```bash
-# Start both the backend server and frontend concurrently
-npm run dev
-```
-
-This will start:
-
-- Backend server on http://localhost:8080
-- Frontend development server on http://localhost:3000
-
-#### Running Separately
-
-##### Backend Server
-
-To run only the backend API server:
-
-```bash
-# Start the backend server
-npm run dev:server
-```
-
-The API server will run on http://localhost:8080
-
-##### Frontend Development
-
-To run only the React frontend development server:
-
-```bash
-# Start the frontend development server
-npm run dev:frontend
-```
-
-The React app will be available at http://localhost:3000 and will automatically proxy API requests to the backend server.
-
-### Building and Running in Production
-
-#### Step 1: Build the Project
-
-```bash
-# Clean the build directory
-npm run clean
-
-# Build the TypeScript backend
-npm run build
-
-# Build the React frontend
-cd src/views/react
-npm run build
-cd ../../..
-```
-
-#### Step 2: Start the Production Server
-
-```bash
-# Start the production server
-npm start
+docker-compose up --build
 ```
 
 The production server will:
 
-- Serve the backend API on http://localhost:8080
-- Serve the built React frontend from the same server
+- Serve the server runs on http://localhost:3001
+- Serve the react server runs on http://localhost:3000
+- Serve the analyser runs on http://localhost:3002
+- Its better not to run the collector since it updates items on the database, there is a collector application always running on the cloud
 
-Note: Make sure all environment variables are properly set in your production environment.
+Note: Make sure all environment variables are properly set in your environment.
 
 ### Running Tests
 
