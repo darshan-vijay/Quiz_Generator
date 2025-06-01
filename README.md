@@ -6,7 +6,7 @@ Mohammed Raihan Ullah, Nikhil Bailey, Vinay Rajesh, Darshan Vijayaraghavan, Onka
 
 Our project scrapes and collects documents from the web to generate quizzes on demand. The application leverages the capabilities of LLMs to create quiz questions based on the scraped data and user prompts. It then uses the Google Forms API to publish the generated quizzes on Google Forms.
 
-Application code is in the current repository and the Infrastructure code continuous deployment was moved as per discussion in this repo https://github.com/coloradocollective/team-typo-manifests
+Application code is in the current repository and the Infrastructure code continuous deployment was moved as per discussion in this repo https://gitlab.com/cu-group/quiz-proj
 
 ## Architecture Overview
 
