@@ -6,6 +6,7 @@ Mohammed Raihan Ullah, Nikhil Bailey, Vinay Rajesh, Darshan Vijayaraghavan, Onka
 
 Our project scrapes and collects documents from the web to generate quizzes on demand. The application leverages the capabilities of LLMs to create quiz questions based on the scraped data and user prompts. It then uses the Google Forms API to publish the generated quizzes on Google Forms.
 
+Demo Link: [Loom](https://www.loom.com/share/2025fb5d8bea46679c4feb12bd315b54)
 Application code is in the current repository and the Infrastructure code continuous deployment was moved as per discussion in this repo https://gitlab.com/cu-group/quiz-proj
 
 ## Architecture Overview
